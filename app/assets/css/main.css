@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface-bg: #f7f4ef;
+  --surface-card: #fffdf9;
+  --surface-line: #e5ddd1;
+  --text-main: #2f2a24;
+  --text-subtle: #6c6257;
+  --accent: #0e8f7f;
+  --accent-soft: #e2f4f1;
+}
+
+html,
+body,
+#__nuxt {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at 20% 10%, #fff7e8 0%, transparent 35%),
+    radial-gradient(circle at 80% 30%, #ecfaf7 0%, transparent 32%),
+    var(--surface-bg);
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.headline-font {
+  font-family: 'Noto Serif TC', serif;
+}
+
+.timeline-card {
+  border: 1px solid var(--surface-line);
+  background: var(--surface-card);
+  box-shadow: 0 10px 24px rgba(39, 34, 27, 0.05);
+}
