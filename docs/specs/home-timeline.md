@@ -100,6 +100,18 @@
 - 發文時間
 - 是否為 reblog / boost（初期可先簡化為文字標示）
 - avatar（可先用圖片或預設佔位）
+- 貼文圖片縮圖（若貼文含圖片）
+
+### Status Image（首頁縮圖）
+
+- 僅顯示 `media_attachments` 中 `type=image` 的媒體。
+- 單張圖：以 16:9 或 4:3 容器顯示，`object-fit: cover`。
+- 多張圖：初期可先顯示前 1 張，並標示 `+N`；後續再擴充格狀排版。
+- 若有 `preview_url`，首頁優先使用 `preview_url`，避免載入過大原圖。
+- 圖片載入失敗時：
+	- 隱藏壞圖，不讓版面破版
+	- 顯示簡易 fallback 區塊（例如「圖片載入失敗」）
+- 若貼文無圖片，不保留空白圖片區塊。
 
 ### Loading State
 
@@ -140,6 +152,13 @@ type TimelineStatus = {
 	id: string
 	content: string
 	createdAt: string
+	mediaAttachments?: Array<{
+		id: string
+		type: 'image' | 'video' | 'gifv' | 'audio' | 'unknown'
+		url: string
+		previewUrl?: string
+		description?: string | null
+	}> 
 	account: {
 		id: string
 		username: string
@@ -150,3 +169,11 @@ type TimelineStatus = {
 	reblog?: TimelineStatus | null
 }
 ```
+
+### Media Mapping Notes
+
+- Mastodon `media_attachments` 建議映射為 `mediaAttachments`。
+- 欄位對應建議：
+	- `preview_url` -> `previewUrl`
+	- `description` -> `description`（作為 `img alt` 候選）
+- 若無 `description`，可 fallback 使用作者名稱 + 「貼文圖片」。

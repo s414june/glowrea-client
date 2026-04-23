@@ -1,5 +1,7 @@
 # Routing Architecture
 
+See also: `docs/architecture/app-shell-navigation.md` for app shell navigation and Lucide icon rendering architecture.
+
 ## `/home`
 
 - Role: home timeline page entry after login.

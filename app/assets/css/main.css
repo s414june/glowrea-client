@@ -24,10 +24,11 @@ body {
   margin: 0;
   font-family: 'IBM Plex Sans', sans-serif;
   color: var(--text-main);
-  background:
+  /* background:
     radial-gradient(circle at 20% 10%, #fff7e8 0%, transparent 35%),
     radial-gradient(circle at 80% 30%, #ecfaf7 0%, transparent 32%),
-    var(--surface-bg);
+    var(--surface-bg); */
+    background-color: var(--surface-bg);
 }
 
 .app-shell {

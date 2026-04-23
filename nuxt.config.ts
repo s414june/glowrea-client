@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     mastodonApiBase: '',
     mastodonToken: '',
+    authSessionSecret: '',
     public: {
       mastodonApiBase: ''
     }

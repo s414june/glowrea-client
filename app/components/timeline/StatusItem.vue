@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TimelineStatus } from '~/shared/types/timeline'
+import type { TimelineStatus } from '#shared/types/timeline'
 
 const props = defineProps<{
   status: TimelineStatus
@@ -30,23 +30,37 @@ const formattedTime = computed(() => {
     day: 'numeric'
   }).format(new Date(activeStatus.value.created_at))
 })
+
+const imageAttachments = computed(() => {
+  return (activeStatus.value.media_attachments || []).filter((media) => media.type === 'image')
+})
+
+const primaryImage = computed(() => imageAttachments.value[0] || null)
+const extraImageCount = computed(() => Math.max(0, imageAttachments.value.length - 1))
+
+const hasImageError = ref(false)
+
+function onImageError(): void {
+  hasImageError.value = true
+}
+
+const router = useRouter()
+
+function openDetail(): Promise<void> {
+  return router.push(`/status/${activeStatus.value.id}`).then(() => { })
+}
 </script>
 
 <template>
-  <article class="timeline-card rounded-2xl p-4 transition-transform duration-200 hover:-translate-y-0.5">
-    <p
-      v-if="boostedBy"
-      class="mb-2 text-xs font-medium text-teal-700"
-    >
+  <article class="timeline-card cursor-pointer rounded-2xl p-4 transition-transform duration-200" role="button"
+    tabindex="0" @click="openDetail" @keydown.enter.prevent="openDetail" @keydown.space.prevent="openDetail">
+    <p v-if="boostedBy" class="mb-2 text-xs font-medium text-teal-700">
       Boosted by {{ boostedBy }}
     </p>
 
     <div class="flex items-start gap-3">
-      <img
-        :src="activeStatus.account.avatar"
-        :alt="authorName"
-        class="h-10 w-10 rounded-full border border-stone-200 object-cover"
-      >
+      <img :src="activeStatus.account.avatar" :alt="authorName"
+        class="h-10 w-10 rounded-full border border-stone-200 object-cover">
 
       <div class="min-w-0 flex-1">
         <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -61,10 +75,33 @@ const formattedTime = computed(() => {
           </p>
         </div>
 
-        <div
-          class="prose prose-stone mt-2 max-w-none text-sm"
-          v-html="activeStatus.content"
-        />
+        <div class="prose prose-stone mt-2 max-w-none text-sm" v-html="activeStatus.content" />
+
+        <div v-if="primaryImage" class="mt-3">
+          <div
+            v-if="hasImageError"
+            class="rounded-xl border border-stone-200 bg-stone-100 px-4 py-8 text-center text-xs text-stone-500"
+          >
+            圖片載入失敗
+          </div>
+
+          <div v-else class="relative overflow-hidden rounded-xl border border-stone-200 bg-stone-100">
+            <img
+              :src="primaryImage.preview_url || primaryImage.url"
+              :alt="primaryImage.description || `${authorName} 的貼文圖片`"
+              class="h-44 w-full object-cover"
+              loading="lazy"
+              @error="onImageError"
+            >
+
+            <span
+              v-if="extraImageCount > 0"
+              class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white"
+            >
+              +{{ extraImageCount }}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </article>

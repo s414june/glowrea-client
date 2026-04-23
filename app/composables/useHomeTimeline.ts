@@ -1,4 +1,4 @@
-import type { TimelineStatus } from '~/shared/types/timeline'
+import type { TimelineStatus } from '#shared/types/timeline'
 import { fetchHomeTimelinePage } from '~/utils/api/timeline'
 
 type HomeTimelineState = {

@@ -1,4 +1,5 @@
-import type { TimelinePageResponse, TimelineStatus } from '~/shared/types/timeline'
+import type { TimelinePageResponse, TimelineStatus } from '#shared/types/timeline'
+import { requireAuthSession } from '../../utils/auth-session'
 
 function parseNextMaxId(linkHeader: string | null): string | null {
   if (!linkHeader) {
@@ -22,6 +23,8 @@ function parseNextMaxId(linkHeader: string | null): string | null {
 }
 
 export default defineEventHandler(async (event): Promise<TimelinePageResponse> => {
+  requireAuthSession(event)
+
   const runtimeConfig = useRuntimeConfig(event)
   const query = getQuery(event)
 
