@@ -46,14 +46,27 @@ function onImageError(): void {
 
 const router = useRouter()
 
-function openDetail(): Promise<void> {
+function shouldSkipCardNavigation(event: MouseEvent | KeyboardEvent): boolean {
+  if (!(event.target instanceof Element)) {
+    return false
+  }
+
+  return Boolean(event.target.closest('a'))
+}
+
+function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
+  if (shouldSkipCardNavigation(event)) {
+    event.stopPropagation()
+    return Promise.resolve()
+  }
+
   return router.push(`/status/${activeStatus.value.id}`).then(() => { })
 }
 </script>
 
 <template>
   <article class="timeline-card cursor-pointer rounded-2xl p-4 transition-transform duration-200" role="button"
-    tabindex="0" @click="openDetail" @keydown.enter.prevent="openDetail" @keydown.space.prevent="openDetail">
+    tabindex="0" @click="openDetail($event)" @keydown.enter.prevent="openDetail($event)" @keydown.space.prevent="openDetail($event)">
     <p v-if="boostedBy" class="mb-2 text-xs font-medium text-teal-700">
       Boosted by {{ boostedBy }}
     </p>

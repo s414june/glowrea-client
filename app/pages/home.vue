@@ -40,7 +40,11 @@ async function handleLogout(): Promise<void> {
 onMounted(async () => {
   if (signal.value > 0 && signal.value !== lastAppliedRefreshSignal.value) {
     lastAppliedRefreshSignal.value = signal.value
-    await refresh()
+    if (items.value.length === 0) {
+      await loadInitial()
+    } else {
+      await refresh()
+    }
   } else {
     await loadInitial()
   }
@@ -76,7 +80,11 @@ watch(signal, async (value, previousValue) => {
   }
 
   lastAppliedRefreshSignal.value = value
-  await refresh()
+  if (items.value.length === 0) {
+    await loadInitial()
+  } else {
+    await refresh()
+  }
 })
 
 watch(sentinelRef, (element, previousElement) => {

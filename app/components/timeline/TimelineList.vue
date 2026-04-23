@@ -29,7 +29,7 @@ defineEmits<{
       </span>
     </header>
 
-    <LoadingSkeleton v-if="isInitialLoading && items.length === 0" />
+    <LoadingSkeleton v-if="(isInitialLoading || isRefreshing) && items.length === 0" />
 
     <div v-else-if="initialError && items.length === 0" class="timeline-card rounded-2xl p-6 text-center">
       <p class="text-sm text-rose-700">

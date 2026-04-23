@@ -32,7 +32,7 @@ App Shell 導覽採用 Lucide icon 系統，並以「單一映射來源」管理
 ### 3) Render Layer
 
 - file: `app/components/layout/AppSidebar.vue`
-  - 桌機左欄 icon-only 導覽
+  - 桌機左欄 icon + label 導覽
 - file: `app/layouts/default.vue`
   - 手機頂部列（通知/搜尋/更多）icon-only
   - 手機底部列（首頁/私訊/探索/個人檔案）icon-only
@@ -49,7 +49,7 @@ App Shell 導覽採用 Lucide icon 系統，並以「單一映射來源」管理
 
 ## Accessibility
 
-即使 UI 改為 icon-only，仍需保留可存取資訊：
+無論 icon-only 或 icon+label，皆需保留可存取資訊：
 
 - 每個導覽按鈕需有 `aria-label`
 - 補 `title` 供滑鼠使用者提示

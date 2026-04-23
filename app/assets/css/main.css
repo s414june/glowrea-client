@@ -44,3 +44,13 @@ body {
   background: var(--surface-card);
   box-shadow: 0 10px 24px rgba(39, 34, 27, 0.05);
 }
+
+.prose a {
+  color: #1d9bf0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose a:hover {
+  color: #1877f2;
+}

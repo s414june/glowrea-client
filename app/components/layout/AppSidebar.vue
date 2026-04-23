@@ -19,14 +19,14 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
 </script>
 
 <template>
-  <aside class="sticky top-0 h-screen border-r border-stone-200 bg-[#faf7f2] px-4 py-6">
+  <aside class="h-screen border-r border-stone-200 bg-[#faf7f2] px-4 py-6">
     <button
       class="headline-font mb-6 flex w-full items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-lg font-semibold text-stone-800 transition-colors hover:bg-stone-100"
       title="回到首頁並刷新"
       aria-label="回到首頁並刷新"
       @click="goHomeAndRefreshTimeline"
     >
-      <Flower2 class="h-5 w-5" />
+      <Flower2 class="h-5 w-5" aria-hidden="true" />
       Glowrea
     </button>
 
@@ -37,7 +37,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
         :to="item.to"
         :title="item.label"
         :aria-label="item.label"
-        class="flex items-center justify-center rounded-xl px-3 py-3 text-sm font-medium transition-colors"
+        class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors"
         :class="isActive(item.to)
           ? 'bg-teal-600 text-white'
           : 'text-stone-700 hover:bg-stone-200'"
@@ -47,7 +47,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
           class="h-5 w-5"
           aria-hidden="true"
         />
-        <span class="sr-only">{{ item.label }}</span>
+        <span>{{ item.label }}</span>
       </NuxtLink>
     </nav>
   </aside>

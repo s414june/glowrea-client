@@ -26,8 +26,8 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
     <slot />
   </div>
 
-  <div v-else class="app-shell min-h-screen lg:grid lg:grid-cols-[260px_1fr]">
-    <div class="hidden lg:block">
+  <div v-else class="app-shell min-h-screen">
+    <div class="hidden lg:block lg:fixed lg:left-0 lg:top-0 lg:z-30 lg:h-screen lg:w-[260px]">
       <AppSidebar />
     </div>
 

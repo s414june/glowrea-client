@@ -241,6 +241,8 @@ type StatusDetailState = {
 
 - `navigateTo(`/status/${status.id}`)`
 - 若卡片內未來有互動按鈕，按鈕需 `stopPropagation` 避免誤導頁
+- 貼文 HTML 內容中的 `a` 連結同樣視為互動元素：點擊連結不可觸發卡片導頁
+- `a` 連結應使用可辨識藍色樣式（含 hover 狀態），避免被誤認為一般內文
 
 ### Session 保護
 
