@@ -28,16 +28,9 @@ function retryLoadMore(): Promise<void> {
   return loadMore()
 }
 
-async function handleLogout(): Promise<void> {
-  try {
-    await auth.logout()
-    await navigateTo('/login')
-  } catch {
-    // Error is exposed through auth.errorMessage.
-  }
-}
-
 onMounted(async () => {
+  if (!auth.isAuthenticated.value) return // 未登入：不載入時間軸
+
   if (signal.value > 0 && signal.value !== lastAppliedRefreshSignal.value) {
     lastAppliedRefreshSignal.value = signal.value
     if (items.value.length === 0) {
@@ -71,6 +64,7 @@ onMounted(async () => {
 })
 
 watch(signal, async (value, previousValue) => {
+  if (!auth.isAuthenticated.value) return // 未登入：忽略刷新訊號
   if (!value || value === previousValue) {
     return
   }
@@ -110,7 +104,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main>
+  <!-- 未登入：顯示本站時間軸佔位畫面（不跳轉路由） -->
+  <ComingSoon
+    v-if="!auth.isAuthenticated.value"
+    label="本站時間軸"
+  />
+
+  <main v-else>
     <section class="mx-auto w-full max-w-2xl px-4 pt-4">
       <p
         v-if="auth.errorMessage.value"

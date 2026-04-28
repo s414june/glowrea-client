@@ -1,0 +1,129 @@
+# Feature: 訪客模式（未登入狀態）
+
+## Goal
+
+讓未登入使用者能在不跳轉登入頁的前提下，存取有限度的公開頁面（首頁、搜尋、探索），並在首頁看到「本站時間軸」佔位畫面，待日後 API 接好後無縫升級為真實內容。
+
+導覽列根據登入狀態**動態渲染**，需要驗證的頁籤完全不出現在 DOM 中。
+
+---
+
+## Scope
+
+### In Scope
+
+- 訪客可存取的路由：`/home`、`/search`、`/explore`（以及 `更多` 選單中的 `/settings`、`/local`、`/federated`）
+- 訪客禁止存取的路由（仍導向 `/login`）：`/status/*`、`/notifications`、`/messages`、`/profile`、`/compose`、`/more`
+- 登出後導向 `/home`（不再導向 `/`）
+- `/home` 訪客狀態：以 `ComingSoon` 元件顯示「本站時間軸」佔位，不觸發 API 請求，不跳轉路由
+- 導覽頁籤依登入狀態差異化，需驗證者不渲染至 DOM
+- `更多` 彈窗依登入狀態過濾選項，訪客可見：設定、本站、聯邦、登入；已登入可見：完整清單 + 登出
+- 行動版底部列：登入後 5 欄（home/messages/compose/explore/profile），訪客 3 欄（home/search/explore）
+- 桌機版發文 FAB 只在登入後顯示
+
+### Out of Scope
+
+- 訪客公開時間軸（本站 / 聯邦）的真實資料載入（本期 ComingSoon 佔位）
+- 搜尋、探索的訪客資料存取
+- 訪客帳號建立 / OAuth 流程
+
+---
+
+## Route Guard 規則
+
+| 路由 | 訪客 | 已登入 |
+|---|---|---|
+| `/` | 無規則（dead end） | 無規則 |
+| `/home` | ✅ 可存取（顯示佔位） | ✅ 顯示追蹤時間軸 |
+| `/search`、`/explore` | ✅ 可存取 | ✅ 可存取 |
+| `/login` | ✅ 可存取 | 導向 `/home` |
+| `/status/*`、`/notifications`、`/messages`、`/profile`、`/compose`、`/more` | 導向 `/login` | ✅ 可存取 |
+
+---
+
+## 導覽項目差異
+
+### 桌機側欄
+
+| 項目 | 訪客 | 已登入 |
+|---|---|---|
+| 首頁 | ✅ | ✅ |
+| 通知 | — | ✅ |
+| 私訊 | — | ✅ |
+| 搜尋 | ✅ | ✅ |
+| 探索 | ✅ | ✅ |
+| 個人檔案 | — | ✅ |
+| 更多 | ✅（過濾後） | ✅（完整） |
+| 發文 FAB | — | ✅ |
+
+### 行動版底部列
+
+| 訪客（3 欄） | 已登入（5 欄） |
+|---|---|
+| 首頁 | 首頁 |
+| 搜尋 | 私訊 |
+| 探索 | 發文（圓形） |
+| | 探索 |
+| | 個人檔案 |
+
+### 行動版頂部（右側）
+
+| 訪客 | 已登入 |
+|---|---|
+| 搜尋圖示 | 通知圖示 |
+| 更多按鈕 | 搜尋圖示 |
+| | 更多按鈕 |
+
+### 更多彈窗內容
+
+| 區塊 | 訪客 | 已登入 |
+|---|---|---|
+| 設定（分隔線） | ✅ | ✅ |
+| 喜歡、書籤、列表、標籤 | — | ✅ |
+| 本站 | ✅ | ✅ |
+| 聯邦 | ✅ | ✅ |
+| 底部（分隔線） | 登入連結（accent 色） | 登出按鈕（紅色） |
+
+---
+
+## `/home` 訪客行為
+
+### 元件切換（不轉路由）
+
+```
+isAuthenticated = true  → <TimelineList ...>（追蹤時間軸）
+isAuthenticated = false → <ComingSoon label="本站時間軸" />
+```
+
+### `ComingSoon` 元件規格
+
+- 路徑：`app/components/common/ComingSoon.vue`
+- Props：`label?: string`（顯示於說明文字）
+- 顯示：🚧 icon + 「即將推出」標題 + 說明文字
+- 樣式：置中、留白足夠、純靜態，不觸發任何 API
+
+### 資料載入保護
+
+`home.vue` 的 `onMounted` 與 `signal` watch 在 `!isAuthenticated.value` 時直接 return，不呼叫 `loadInitial()`。
+
+---
+
+## 登出後導向
+
+登出完成後（無論成功或失敗 finally block）導向 `/home`，不再導向 `/`。
+
+訪客在 `/home` 看到佔位畫面，並可透過 `更多` 選單點擊「登入」進入 `/login`。
+
+---
+
+## 受影響檔案
+
+| 檔案 | 變更摘要 |
+|---|---|
+| `app/composables/useAppNavigation.ts` | 改為 auth-aware，回傳 `ComputedRef<NavItem[]>` |
+| `app/layouts/default.vue` | 動態 `grid-cols`、條件顯示 FAB、`regularMobileTopItems` 用 `.value` |
+| `app/components/layout/AppSidebar.vue` | `regularDesktopItems` 用 `.value` |
+| `app/components/layout/MorePopoverMenu.vue` | 過濾 mainItems、切換登入/登出區塊、logout → `/home` |
+| `app/pages/home.vue` | 訪客顯示 `ComingSoon`，跳過資料載入 |
+| `app/components/common/ComingSoon.vue` | 新建，通用佔位元件 |
+| `app/middleware/auth.global.ts` | 移除 `/home` 保護 |

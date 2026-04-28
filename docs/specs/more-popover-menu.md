@@ -97,7 +97,7 @@ app/
 - 圖示 + 文字，圖示尺寸 `h-4 w-4`
 - Default 狀態：`text-stone-700`
 - Hover 狀態：`bg-stone-100 text-stone-900`
-- 登出項目：文字與 icon 改為 `text-red-600 hover:bg-red-50`
+- 登出項目：文字與 icon 改為 `text-red-600 hover:bg-stone-200`
 - 登出項目前應有分隔線（`border-t border-stone-200 mt-1 pt-1`）
 
 ### Active 路由指示

@@ -1,10 +1,13 @@
 import type { TimelinePageResponse, TimelineStatus } from '#shared/types/timeline'
-import { requireAuthSession } from '../../../utils/auth-session'
+import { requireRequestCredentials } from '../../../utils/request-credentials'
 
 function parseNextMaxId(linkHeader: string | null): string | null {
   if (!linkHeader) return null
 
-  const nextLink = linkHeader.split(',').map((s) => s.trim()).find((s) => s.includes('rel="next"'))
+  const nextLink = linkHeader
+    .split(',')
+    .map((s) => s.trim())
+    .find((s) => s.includes('rel="next"'))
   if (!nextLink) return null
 
   const urlMatch = nextLink.match(/<([^>]+)>/)
@@ -14,34 +17,10 @@ function parseNextMaxId(linkHeader: string | null): string | null {
 }
 
 export default defineEventHandler(async (event): Promise<TimelinePageResponse> => {
-  requireAuthSession(event)
+  const { accessToken, serverOrigin, accountId } = await requireRequestCredentials(event)
 
-  const runtimeConfig = useRuntimeConfig(event)
-  const mastodonApiBase = runtimeConfig.mastodonApiBase || runtimeConfig.public.mastodonApiBase
-  const mastodonToken = runtimeConfig.mastodonToken
   const query = getQuery(event)
-
-  if (!mastodonApiBase) {
-    throw createError({ statusCode: 500, statusMessage: 'Missing MASTODON_API_BASE configuration.' })
-  }
-
-  if (!mastodonToken) {
-    throw createError({ statusCode: 500, statusMessage: 'Missing MASTODON_TOKEN configuration.' })
-  }
-
-  // First fetch the account id from verify_credentials
-  const credResponse = await fetch(new URL('/api/v1/accounts/verify_credentials', mastodonApiBase).toString(), {
-    headers: { Authorization: `Bearer ${mastodonToken}` }
-  })
-
-  if (!credResponse.ok) {
-    throw createError({ statusCode: credResponse.status, statusMessage: 'Failed to resolve account id.' })
-  }
-
-  const cred = await credResponse.json() as { id: string }
-  const accountId = cred.id
-
-  const endpoint = new URL(`/api/v1/accounts/${accountId}/statuses`, mastodonApiBase)
+  const endpoint = new URL(`/api/v1/accounts/${accountId}/statuses`, serverOrigin)
   endpoint.searchParams.set('limit', '20')
 
   const maxId = typeof query.maxId === 'string' ? query.maxId : undefined
@@ -50,7 +29,7 @@ export default defineEventHandler(async (event): Promise<TimelinePageResponse> =
   }
 
   const response = await fetch(endpoint.toString(), {
-    headers: { Authorization: `Bearer ${mastodonToken}` }
+    headers: { Authorization: `Bearer ${accessToken}` },
   })
 
   if (!response.ok) {
@@ -61,6 +40,6 @@ export default defineEventHandler(async (event): Promise<TimelinePageResponse> =
   const items = (await response.json()) as TimelineStatus[]
   return {
     items,
-    nextMaxId: parseNextMaxId(response.headers.get('link'))
+    nextMaxId: parseNextMaxId(response.headers.get('link')),
   }
 })

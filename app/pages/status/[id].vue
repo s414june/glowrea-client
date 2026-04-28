@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ArrowLeft } from 'lucide-vue-next'
 import DetailCard from '~/components/status/DetailCard.vue'
 import ContextList from '~/components/status/ContextList.vue'
 import { useStatusDetail } from '~/composables/useStatusDetail'
@@ -68,9 +69,10 @@ watch(statusId, async (value, previousValue) => {
   <main class="mx-auto w-full max-w-2xl px-4 py-6 sm:py-10">
     <header class="mb-5 flex items-center justify-between">
       <button
-        class="rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100"
+        class="rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-200"
+        aria-label="返回"
         @click="navigateTo('/home')">
-        回到 Home
+        <ArrowLeft class="h-5 w-5" aria-hidden="true" />
       </button>
 
       <span

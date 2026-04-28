@@ -1,25 +1,13 @@
 import type { ProfileSummary } from '#shared/types/profile'
-import { requireAuthSession } from '../../utils/auth-session'
+import { requireRequestCredentials } from '../../utils/request-credentials'
 
 type ProfileMeResponse = { profile: ProfileSummary }
 
 export default defineEventHandler(async (event): Promise<ProfileMeResponse> => {
-  requireAuthSession(event)
+  const { accessToken, serverOrigin } = await requireRequestCredentials(event)
 
-  const runtimeConfig = useRuntimeConfig(event)
-  const mastodonApiBase = runtimeConfig.mastodonApiBase || runtimeConfig.public.mastodonApiBase
-  const mastodonToken = runtimeConfig.mastodonToken
-
-  if (!mastodonApiBase) {
-    throw createError({ statusCode: 500, statusMessage: 'Missing MASTODON_API_BASE configuration.' })
-  }
-
-  if (!mastodonToken) {
-    throw createError({ statusCode: 500, statusMessage: 'Missing MASTODON_TOKEN configuration.' })
-  }
-
-  const response = await fetch(new URL('/api/v1/accounts/verify_credentials', mastodonApiBase).toString(), {
-    headers: { Authorization: `Bearer ${mastodonToken}` }
+  const response = await fetch(new URL('/api/v1/accounts/verify_credentials', serverOrigin).toString(), {
+    headers: { Authorization: `Bearer ${accessToken}` },
   })
 
   if (!response.ok) {
@@ -27,7 +15,7 @@ export default defineEventHandler(async (event): Promise<ProfileMeResponse> => {
     throw createError({ statusCode: response.status, statusMessage: detail || 'Failed to fetch profile.' })
   }
 
-  const raw = await response.json() as Record<string, unknown>
+  const raw = (await response.json()) as Record<string, unknown>
   const profile: ProfileSummary = {
     id: String(raw.id ?? ''),
     username: String(raw.username ?? ''),
@@ -38,7 +26,7 @@ export default defineEventHandler(async (event): Promise<ProfileMeResponse> => {
     header: String(raw.header ?? ''),
     statusesCount: Number(raw.statuses_count ?? 0),
     followingCount: Number(raw.following_count ?? 0),
-    followersCount: Number(raw.followers_count ?? 0)
+    followersCount: Number(raw.followers_count ?? 0),
   }
 
   return { profile }

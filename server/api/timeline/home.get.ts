@@ -1,5 +1,5 @@
 import type { TimelinePageResponse, TimelineStatus } from '#shared/types/timeline'
-import { requireAuthSession } from '../../utils/auth-session'
+import { requireRequestCredentials } from '../../utils/request-credentials'
 
 function parseNextMaxId(linkHeader: string | null): string | null {
   if (!linkHeader) {
@@ -23,31 +23,12 @@ function parseNextMaxId(linkHeader: string | null): string | null {
 }
 
 export default defineEventHandler(async (event): Promise<TimelinePageResponse> => {
-  requireAuthSession(event)
+  const { accessToken, serverOrigin } = await requireRequestCredentials(event)
 
-  const runtimeConfig = useRuntimeConfig(event)
   const query = getQuery(event)
-
-  const mastodonApiBase = runtimeConfig.mastodonApiBase || runtimeConfig.public.mastodonApiBase
-  const mastodonToken = runtimeConfig.mastodonToken
-
-  if (!mastodonApiBase) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Missing MASTODON_API_BASE configuration.'
-    })
-  }
-
-  if (!mastodonToken) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Missing MASTODON_TOKEN configuration.'
-    })
-  }
-
   const maxId = typeof query.maxId === 'string' ? query.maxId : undefined
   const limit = 20
-  const endpoint = new URL('/api/v1/timelines/home', mastodonApiBase)
+  const endpoint = new URL('/api/v1/timelines/home', serverOrigin)
   endpoint.searchParams.set('limit', String(limit))
 
   if (maxId) {
@@ -56,8 +37,8 @@ export default defineEventHandler(async (event): Promise<TimelinePageResponse> =
 
   const response = await fetch(endpoint.toString(), {
     headers: {
-      Authorization: `Bearer ${mastodonToken}`
-    }
+      Authorization: `Bearer ${accessToken}`,
+    },
   })
 
   if (!response.ok) {

@@ -110,7 +110,7 @@
 ### Navigation Item States
 
 - Default：一般文字與 icon（`text-stone-700`）
-- Hover：背景或文字顏色微調（`hover:bg-stone-100 hover:text-stone-900`）
+- Hover：背景或文字顏色微調（`hover:bg-stone-200 hover:text-stone-900`）
 - Active：**icon 與文字本身改為 accent 色（`--nav-accent`）**，不加底色背景
   - accent 色統一由 CSS 變數 `--nav-accent`（定義於 `main.css`）控制
   - 需要換色時只改 `--nav-accent` 即可，桌機左欄、手機頂部列、手機底部列全部同步生效

@@ -6,10 +6,12 @@ import {
   Hash,
   Heart,
   List,
+  LogIn,
   LogOut,
   Settings,
 } from 'lucide-vue-next'
 import type { Component } from 'vue'
+import { useAuth } from '~/composables/useAuth'
 
 const props = defineProps<{
   placement: 'sidebar' | 'mobile-top'
@@ -18,6 +20,7 @@ const props = defineProps<{
 
 const route = useRoute()
 const { isOpen, close } = useMoreMenu()
+const { isAuthenticated, logout: authLogout } = useAuth()
 
 type MoreMenuLink = {
   type: 'link'
@@ -37,11 +40,8 @@ type MoreMenuAction = {
 
 async function logout(): Promise<void> {
   close()
-  try {
-    await $fetch('/api/auth/logout', { method: 'POST' })
-  } finally {
-    await navigateTo('/')
-  }
+  await authLogout()
+  await navigateTo('/home')
 }
 
 const settingsItems: MoreMenuLink[] = [
@@ -60,6 +60,16 @@ const mainItems: MoreMenuLink[] = [
 const dangerItems: MoreMenuAction[] = [
   { type: 'action', key: 'logout', label: '登出', icon: LogOut, action: logout },
 ]
+
+// 未登入：只保留不需驗證的項目
+const GUEST_MAIN_KEYS = ['local', 'federated']
+
+const visibleMainItems = computed(() =>
+  isAuthenticated.value ? mainItems : mainItems.filter(i => GUEST_MAIN_KEYS.includes(i.key)),
+)
+
+const showDangerSection = computed(() => isAuthenticated.value)
+const showLoginSection = computed(() => !isAuthenticated.value)
 
 function isItemActive(item: MoreMenuLink): boolean {
   return route.path === item.to
@@ -144,7 +154,7 @@ const transitionOrigin = computed(() =>
           :class="
             isItemActive(item)
               ? 'nav-active'
-              : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'
+              : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'
           "
           role="menuitem"
           @click="close()"
@@ -160,14 +170,14 @@ const transitionOrigin = computed(() =>
 
       <!-- 一般路由項目 -->
       <NuxtLink
-        v-for="item in mainItems"
+        v-for="item in visibleMainItems"
         :key="item.key"
         :to="item.to"
         class="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
         :class="
           isItemActive(item)
             ? 'nav-active'
-            : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'
+            : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'
         "
         role="menuitem"
         @click="close()"
@@ -180,12 +190,12 @@ const transitionOrigin = computed(() =>
         <span>{{ item.label }}</span>
       </NuxtLink>
 
-      <!-- 危險操作（登出），有分隔線 -->
-      <div class="mt-1 border-t border-stone-200 pt-1">
+      <!-- 已登入：危險操作（登出） -->
+      <div v-if="showDangerSection" class="mt-1 border-t border-stone-200 pt-1">
         <button
           v-for="item in dangerItems"
           :key="item.key"
-          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50"
+          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-stone-200"
           role="menuitem"
           @click="item.action()"
         >
@@ -196,6 +206,19 @@ const transitionOrigin = computed(() =>
           />
           <span>{{ item.label }}</span>
         </button>
+      </div>
+
+      <!-- 未登入：登入入口 -->
+      <div v-if="showLoginSection" class="mt-1 border-t border-stone-200 pt-1">
+        <NuxtLink
+          to="/login"
+          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--nav-accent)] transition-colors hover:bg-stone-200"
+          role="menuitem"
+          @click="close()"
+        >
+          <LogIn class="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>登入</span>
+        </NuxtLink>
       </div>
     </div>
   </Transition>

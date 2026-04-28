@@ -5,6 +5,7 @@ import MorePopoverMenu from '~/components/layout/MorePopoverMenu.vue'
 import { useAppNavigation } from '~/composables/useAppNavigation'
 import { useHomeRefreshSignal } from '~/composables/useHomeRefreshSignal'
 import { useProfileRefreshSignal } from '~/composables/useProfileRefreshSignal'
+import { useAuth } from '~/composables/useAuth'
 import { navigationIcons } from '~/components/layout/navigationIcons'
 import type { NavItem } from '~/composables/useAppNavigation'
 
@@ -13,8 +14,13 @@ const { mobileTopItems, mobileBottomItems } = useAppNavigation()
 const { triggerHomeRefresh } = useHomeRefreshSignal()
 const { triggerProfileRefresh } = useProfileRefreshSignal()
 const { isOpen: moreMenuOpen, toggle: toggleMoreMenu } = useMoreMenu()
+const { isAuthenticated } = useAuth()
 
-const regularMobileTopItems = computed(() => mobileTopItems.filter(i => i.key !== 'more'))
+const regularMobileTopItems = computed(() => mobileTopItems.value.filter(i => i.key !== 'more'))
+
+const mobileBottomGridClass = computed(() =>
+  mobileBottomItems.value.length <= 3 ? 'grid-cols-3' : 'grid-cols-5',
+)
 const mobileMoreButtonRef = ref<HTMLElement | null>(null)
 
 function handleNavClick(item: NavItem): void {
@@ -108,8 +114,9 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
         <slot />
       </div>
 
-      <!-- 桌機版發文 FAB -->
+      <!-- 桌機版發文 FAB（僅登入後顯示） -->
       <NuxtLink
+        v-if="isAuthenticated"
         to="/compose"
         title="發文"
         aria-label="發文"
@@ -123,7 +130,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
       </NuxtLink>
 
       <nav class="fixed inset-x-0 bottom-0 z-20 border-t border-stone-200 bg-[#faf7f2]/95 px-3 py-2 backdrop-blur lg:hidden">
-        <div class="mx-auto grid w-full max-w-2xl grid-cols-5 gap-2">
+        <div :class="['mx-auto grid w-full max-w-2xl gap-2', mobileBottomGridClass]">
           <template v-for="item in mobileBottomItems" :key="item.key">
             <!-- 發文：特殊圓形 accent 按鈕 -->
             <NuxtLink
@@ -152,7 +159,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
               class="flex items-center justify-center rounded-xl px-2 py-2 transition-colors"
               :class="isActive(item.to)
                 ? 'nav-active'
-                : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'"
+                : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'"
               @click="handleNavClick(item)"
             >
               <component

@@ -13,7 +13,7 @@ const { triggerHomeRefresh } = useHomeRefreshSignal()
 const { triggerProfileRefresh } = useProfileRefreshSignal()
 const { isOpen: moreMenuOpen, toggle: toggleMoreMenu } = useMoreMenu()
 
-const regularDesktopItems = computed(() => desktopItems.filter(i => i.key !== 'more'))
+const regularDesktopItems = computed(() => desktopItems.value.filter(i => i.key !== 'more'))
 const moreButtonRef = ref<HTMLElement | null>(null)
 
 function isActive(path: string): boolean {
@@ -33,9 +33,9 @@ function handleNavClick(item: NavItem): void {
 </script>
 
 <template>
-  <aside class="h-screen border-r border-stone-200 bg-[#faf7f2] px-4 py-6">
+  <aside class="h-screen border-r border-stone-200 bg-[#faf7f2] px-4 py-3">
     <button
-      class="headline-font mb-6 flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-lg font-semibold text-[var(--nav-accent)] transition-colors hover:bg-stone-100"
+      class="headline-font flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-lg font-semibold text-[var(--nav-accent)] transition-colors hover:bg-stone-200"
       title="回到首頁並刷新"
       aria-label="回到首頁並刷新"
       @click="goHomeAndRefreshTimeline"

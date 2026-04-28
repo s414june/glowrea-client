@@ -3,9 +3,16 @@ import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 export const AUTH_COOKIE_NAME = 'glowrea_session'
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
 
-type SessionPayload = {
+export type SessionPayload = {
+  /** 複合鍵，格式：`${serverOrigin}::${accountId}`，用於在 credential store 中定位帳號 */
+  accountKey: string
+  /** Mastodon 實例 origin，例如 https://mastodon.social */
+  serverOrigin: string
+  /** 帳號在該實例的 ID */
   accountId: string
+  /** session 建立時間（Unix ms） */
   issuedAt: number
+  /** 防重放 nonce */
   nonce: string
 }
 
@@ -68,7 +75,7 @@ function decodeSessionToken(token: string, secret: string): SessionPayload | nul
   try {
     const payload = JSON.parse(fromBase64Url(payloadPart)) as SessionPayload
 
-    if (!payload.accountId || !payload.issuedAt || !payload.nonce) {
+    if (!payload.accountKey || !payload.serverOrigin || !payload.accountId || !payload.issuedAt || !payload.nonce) {
       return null
     }
 
@@ -78,12 +85,19 @@ function decodeSessionToken(token: string, secret: string): SessionPayload | nul
   }
 }
 
-export function setAuthSession(event: H3Event, accountId: string): void {
+export function setAuthSession(
+  event: H3Event,
+  accountKey: string,
+  serverOrigin: string,
+  accountId: string,
+): void {
   const secret = getSessionSecret(event)
   const payload: SessionPayload = {
+    accountKey,
+    serverOrigin,
     accountId,
     issuedAt: Date.now(),
-    nonce: randomBytes(16).toString('hex')
+    nonce: randomBytes(16).toString('hex'),
   }
 
   const token = encodeSessionToken(payload, secret)
