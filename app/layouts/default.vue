@@ -50,14 +50,14 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
   </div>
 
   <div v-else class="app-shell min-h-screen">
-    <div class="hidden lg:block lg:fixed lg:left-0 lg:top-0 lg:z-30 lg:h-screen lg:w-[260px]">
+    <div class="hidden xl:block xl:fixed xl:left-0 xl:top-0 xl:z-30 xl:h-screen xl:w-[260px]">
       <AppSidebar />
     </div>
 
     <div class="min-h-screen">
       <!-- 手機版 header：fixed + 滾動方向動畫 -->
       <header
-        class="fixed inset-x-0 top-0 z-20 border-b border-stone-200 bg-[#faf7f2]/95 px-4 py-3 backdrop-blur transition-transform duration-300 ease-in-out lg:hidden"
+        class="fixed inset-x-0 top-0 z-20 border-b border-stone-200 bg-[#faf7f2]/95 px-4 py-3 backdrop-blur transition-transform duration-300 ease-in-out xl:hidden"
         :class="headerVisible ? 'translate-y-0' : '-translate-y-full'"
       >
         <div class="mx-auto flex w-full max-w-2xl items-center justify-between">
@@ -118,9 +118,9 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
       </header>
 
       <!-- 補足 fixed header 推走的空間（僅手機） -->
-      <div class="h-16 lg:hidden" />
+      <div class="h-16 xl:hidden" />
 
-      <div class="pb-20 lg:pb-0">
+      <div class="pb-20 xl:pb-0">
         <slot />
       </div>
 
@@ -130,7 +130,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
         to="/compose"
         title="發文"
         aria-label="發文"
-        class="fixed bottom-8 right-8 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-stone-200 text-stone-700 shadow-sm transition-colors hover:bg-stone-300 hover:shadow-md lg:flex border border-stone-300"
+        class="fixed bottom-8 right-8 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-stone-200 text-stone-700 shadow-sm transition-colors hover:bg-stone-300 hover:shadow-md xl:flex border border-stone-300"
       >
         <component
           :is="navigationIcons.compose"
@@ -139,7 +139,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
         />
       </NuxtLink>
 
-      <nav class="fixed inset-x-0 bottom-0 z-20 border-t border-stone-200 bg-[#faf7f2]/95 px-3 py-2 backdrop-blur lg:hidden">
+      <nav class="fixed inset-x-0 bottom-0 z-20 border-t border-stone-200 bg-[#faf7f2]/95 px-3 py-2 backdrop-blur xl:hidden">
         <div :class="['mx-auto grid w-full max-w-2xl gap-2', mobileBottomGridClass]">
           <template v-for="item in mobileBottomItems" :key="item.key">
             <!-- 發文：特殊圓形 accent 按鈕 -->
