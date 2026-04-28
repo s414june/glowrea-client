@@ -8,8 +8,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
     '/status',
     '/notifications',
     '/messages',
-    '/search',
-    '/explore',
     '/profile',
     '/more',
     '/compose',

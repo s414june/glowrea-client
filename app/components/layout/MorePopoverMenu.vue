@@ -22,6 +22,9 @@ const route = useRoute()
 const { isOpen, close } = useMoreMenu()
 const { isAuthenticated, logout: authLogout } = useAuth()
 
+const { localPath, ensureHostname } = useInstanceConfig()
+onMounted(() => { ensureHostname() })
+
 type MoreMenuLink = {
   type: 'link'
   key: string
@@ -48,14 +51,20 @@ const settingsItems: MoreMenuLink[] = [
   { type: 'link', key: 'settings', label: '設定', icon: Settings, to: '/settings' },
 ]
 
-const mainItems: MoreMenuLink[] = [
+const mainItems = computed<MoreMenuLink[]>(() => [
   { type: 'link', key: 'likes', label: '喜歡', icon: Heart, to: '/likes' },
   { type: 'link', key: 'bookmarks', label: '書籤', icon: Bookmark, to: '/bookmarks' },
-  { type: 'link', key: 'local', label: '本站', icon: Building2, to: '/local' },
+  {
+    type: 'link',
+    key: 'local',
+    label: '本站',
+    icon: Building2,
+    to: localPath.value ?? '/local',
+  },
   { type: 'link', key: 'federated', label: '聯邦', icon: Globe, to: '/federated' },
   { type: 'link', key: 'lists', label: '列表', icon: List, to: '/lists' },
   { type: 'link', key: 'tags', label: '標籤', icon: Hash, to: '/tags' },
-]
+])
 
 const dangerItems: MoreMenuAction[] = [
   { type: 'action', key: 'logout', label: '登出', icon: LogOut, action: logout },
@@ -65,7 +74,7 @@ const dangerItems: MoreMenuAction[] = [
 const GUEST_MAIN_KEYS = ['local', 'federated']
 
 const visibleMainItems = computed(() =>
-  isAuthenticated.value ? mainItems : mainItems.filter(i => GUEST_MAIN_KEYS.includes(i.key)),
+  isAuthenticated.value ? mainItems.value : mainItems.value.filter(i => GUEST_MAIN_KEYS.includes(i.key)),
 )
 
 const showDangerSection = computed(() => isAuthenticated.value)

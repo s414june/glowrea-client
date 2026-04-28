@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuth } from '~/composables/useAuth'
 import { useHomeRefreshSignal } from '~/composables/useHomeRefreshSignal'
+import LocalTimeline from '~/components/timeline/LocalTimeline.vue'
 
 const auth = useAuth()
 const route = useRoute()
@@ -8,6 +9,19 @@ const { signal } = useHomeRefreshSignal()
 const lastAppliedRefreshSignal = ref(0)
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
+
+const { hasInstance, ensureHostname } = useInstanceConfig()
+
+// 確保 instance hostname 已載入（SSR 時透過 cookie 轉送）
+const headers = useRequestHeaders(['cookie'])
+await useAsyncData('instance-config', () =>
+  $fetch<{ hostname: string | null }>('/api/config/instance', { headers }).then((d) => {
+    const { hostname } = useInstanceConfig()
+    hostname.value = d.hostname
+    return d
+  }),
+  { server: true, lazy: false },
+)
 
 const {
   items,
@@ -104,11 +118,15 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <!-- 未登入：顯示本站時間軸佔位畫面（不跳轉路由） -->
-  <ComingSoon
-    v-if="!auth.isAuthenticated.value"
-    label="本站時間軸"
-  />
+  <!--
+    未登入三態：
+    - hasInstance = true  → 本站時間軸（LocalTimeline）
+    - hasInstance = false → 聯邦時間軸（尚未開發 → ComingSoon）
+  -->
+  <template v-if="!auth.isAuthenticated.value">
+    <LocalTimeline v-if="hasInstance" />
+    <ComingSoon v-else label="聯邦時間軸" />
+  </template>
 
   <main v-else>
     <section class="mx-auto w-full max-w-2xl px-4 pt-4">
