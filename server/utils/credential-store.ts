@@ -8,11 +8,11 @@ import { Redis } from '@upstash/redis'
 import type { AccountKey, CredentialEntry } from '#shared/types/auth'
 
 // ── Redis 實例 ────────────────────────────────────────────────────
-// 需設定環境變數：UPSTASH_REDIS_REST_URL、UPSTASH_REDIS_REST_TOKEN
+// 需設定環境變數：KV_REST_API_URL、KV_REST_API_TOKEN（Vercel KV/Upstash 整合自動注入）
 function getRedis(): Redis {
   return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    url: process.env.KV_REST_API_URL!,
+    token: process.env.KV_REST_API_TOKEN!,
   })
 }
 
