@@ -1,5 +1,12 @@
 <script setup lang="ts">
-useSeoMeta({ title: '首頁' })
+const auth = useAuth()
+await auth.ensureSession()
+
+if (auth.isAuthenticated.value) {
+  await navigateTo('/home', { replace: true })
+} else {
+  await navigateTo('/login', { replace: true })
+}
 </script>
 
 <template>

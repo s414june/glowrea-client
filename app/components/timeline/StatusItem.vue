@@ -93,9 +93,11 @@ function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
 
         <div class="prose prose-stone mt-2 max-w-none break-words text-sm" v-html="renderedContent" />
 
-        <StatusImageGallery
-          :attachments="imageAttachments"
-        />
+        <div @click.stop>
+          <StatusImageGallery
+            :attachments="imageAttachments"
+          />
+        </div>
       </div>
     </div>
   </article>

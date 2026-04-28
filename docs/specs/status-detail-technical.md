@@ -175,17 +175,95 @@ export type StatusContextResponse = {
 - 單張圖：以大圖區塊顯示，建議 16:9 或貼近原比例，限制最大高度避免吃滿畫面。
 - 多張圖：初期採 2 欄網格（手機可 1 欄），最多顯示前 4 張，超出顯示數量標記。
 - 圖片比例策略：
-  - 若寬高比 `> 16:9` 或 `< 9:16`，使用 `cover`（滿版）。
-  - 若寬高比介於 `9:16 ~ 16:9`（含邊界），使用全顯示模式（不裁切、不留白）。
-  - 若 `previewUrl` 與原圖比例不同，須以原圖比例作最終判斷。
+  - 若寬高比 `> 16:9` 或 `< 9:16`，使用 `cover`（滿版），並在溢出方向兩端套用糊化漸層遮罩（見下方糊化規則）。
+  - 若寬高比介於 `9:16 ~ 16:9`（含邊界），使用全顯示模式（不裁切、不留白），不套用遮罩。
+  - 若 `previewUrl` 與原圖比例不同，須以原圖比例作最終判斷；遮罩方向同步更新。
+- 糊化規則（`cover` 模式專用）：
+  - 使用 CSS `mask-image` 線性漸層實作，對齊容器圓角（`rounded-xl`）最邊緣。
+  - 橫向溢出（`ratio > 16:9`）：左右兩端各 3% 淡出至透明。
+    ```
+    linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)
+    ```
+  - 縱向溢出（`ratio < 9:16`）：上下兩端各 3% 淡出至透明。
+    ```
+    linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)
+    ```
+  - 同時設定 `-webkit-mask-image` 確保 Safari 相容。
+  - 全顯示模式（`full`）不套用任何遮罩，行內 style 為空物件。
 - 每張圖需有 `alt`：
   - 優先 `description`
   - fallback 為「貼文圖片」
+- 點擊任意圖片可開啟燈箱（`ImageLightbox`），詳見下方燈箱規格。
 
 ### 共用元件要求
 
 - 首頁卡片與詳情頁圖片區皆應使用 `StatusImageGallery`。
 - 避免在 `StatusItem`、`DetailCard` 重複實作比例判斷與錯誤處理，降低規格漂移風險。
+- `ImageLightbox` 由 `StatusImageGallery` 內部掛載，外部元件無需感知。
+
+---
+
+## 圖片燈箱規格（ImageLightbox）
+
+### 元件位置
+
+`app/components/status/ImageLightbox.vue`
+
+### 觸發方式
+
+點擊 `StatusImageGallery` 內任意圖片格子，以點擊的圖片索引開啟燈箱。
+
+### 介面結構
+
+#### 關閉按鈕
+- 固定於視窗左上角（`fixed top-4 left-4`），z-index 高於燈箱主體。
+- 圓形半透明背景，支援 `Escape` 鍵關閉。
+
+#### 手機版（`< md`）
+- 圖片區佔滿剩餘高度（`flex-1`），以 `object-contain` 顯示原圖，不裁切。
+- 若有 `description`，於圖片下方顯示可滾動文字區塊（最大高度 `max-h-36`）。
+- 多圖時，底部顯示指示點，可點擊切換；同時顯示左右箭頭按鈕。
+
+#### 電腦版（`≥ md`）
+- 左側圖片區佔滿寬度剩餘空間，圖片以 `max-h-screen object-contain` 垂直置中。
+- 右側固定寬度（`w-72`）欄位，顯示 `description` 文字（可滾動）。
+  - 若無 `description` 顯示「（無圖片描述）」斜體提示。
+  - 僅單張圖且無 description 時，右欄不渲染。
+- 多圖時，右欄底部顯示指示點；左右箭頭按鈕疊加於圖片區。
+
+### 切換行為
+- 鍵盤 `←` / `→` 切換圖片。
+- 鍵盤 `Escape` 關閉燈箱。
+- 點擊圖片以外的遮罩區域（`@click.self`）關閉燈箱。
+- 切換圖片時，`description` 與 `url` 同步更新。
+
+### 開啟 / 關閉副作用
+- 開啟時：`document.body.style.overflow = 'hidden'`，防止背景滾動。
+- 關閉時：還原 `overflow`。
+- 元件使用 `<Teleport to="body">` 避免被父層 `overflow:hidden` 截切。
+
+### Props
+
+```ts
+type LightboxImage = {
+  id: string
+  url: string           // 原圖 URL（燈箱顯示原圖）
+  description?: string | null
+}
+
+defineProps<{
+  images: LightboxImage[]
+  initialIndex?: number  // 開啟時預設顯示的索引，預設 0
+}>()
+```
+
+### Emits
+
+```ts
+defineEmits<{
+  close: []
+}>()
+```
 
 ### 錯誤與 fallback
 

@@ -131,35 +131,17 @@ onBeforeUnmount(() => {
   </template>
 
   <main v-else>
-    <section class="mx-auto w-full max-w-2xl px-4 pt-4">
-      <p
-        v-if="auth.errorMessage.value"
-        class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-      >
+    <section v-if="auth.errorMessage.value" class="mx-auto w-full max-w-2xl px-4 pt-4">
+      <p class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
         {{ auth.errorMessage.value }}
       </p>
     </section>
-
-    <TimelineList
-      :items="items"
-      :is-initial-loading="isInitialLoading"
-      :is-loading-more="isLoadingMore"
-      :is-refreshing="isRefreshing"
-      :is-empty="isEmpty"
-      :has-more="hasMore"
-      :initial-error="initialError"
-      :load-more-error="loadMoreError"
-      @refresh="refresh"
-      @retry-initial="retryInitial"
-      @retry-load-more="retryLoadMore"
-    >
+    <TimelineList :items="items" :is-initial-loading="isInitialLoading" :is-loading-more="isLoadingMore"
+      :is-refreshing="isRefreshing" :is-empty="isEmpty" :has-more="hasMore" :initial-error="initialError"
+      :load-more-error="loadMoreError" @refresh="refresh" @retry-initial="retryInitial"
+      @retry-load-more="retryLoadMore">
       <template #after-list>
-        <div
-          v-if="hasMore"
-          ref="sentinelRef"
-          aria-hidden="true"
-          class="h-3"
-        />
+        <div v-if="hasMore" ref="sentinelRef" aria-hidden="true" class="h-3" />
       </template>
     </TimelineList>
   </main>

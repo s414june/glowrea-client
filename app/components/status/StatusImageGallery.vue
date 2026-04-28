@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ImageLightbox from '~/components/status/ImageLightbox.vue'
+
 type StatusImageAttachment = {
   id: string
   type?: string
@@ -15,7 +17,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   maxVisible: 4,
   gridClass: 'mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2',
-  imageClass: 'h-52 w-full object-cover'
+  imageClass: 'h-45 w-full object-cover'
 })
 
 const imageAttachments = computed(() => {
@@ -36,13 +38,14 @@ const resolvedGridClass = computed(() => {
 
 const failedImageIds = ref<string[]>([])
 const imageFitModes = ref<Record<string, 'cover' | 'full'>>({})
+const imageOverflowDirs = ref<Record<string, 'horizontal' | 'vertical'>>({})
 const baseImageClass = computed(() => {
   const cleaned = props.imageClass
     .replace(/\bobject-(cover|contain)\b/g, '')
     .replace(/\s+/g, ' ')
     .trim()
 
-  return cleaned || 'h-52 w-full'
+  return cleaned || 'h-45 w-full'
 })
 
 function isFailed(id: string): boolean {
@@ -57,12 +60,10 @@ function onImageError(id: string): void {
   failedImageIds.value = [...failedImageIds.value, id]
 }
 
-function resolveFitModeByRatio(ratio: number): 'cover' | 'full' {
-  if (ratio > maxCoverRatio || ratio < minCoverRatio) {
-    return 'cover'
-  }
-
-  return 'full'
+function resolveFitModeByRatio(ratio: number): { mode: 'cover' | 'full'; dir?: 'horizontal' | 'vertical' } {
+  if (ratio > maxCoverRatio) return { mode: 'cover', dir: 'horizontal' }
+  if (ratio < minCoverRatio) return { mode: 'cover', dir: 'vertical' }
+  return { mode: 'full' }
 }
 
 function onImageLoad(id: string, media: StatusImageAttachment, event: Event): void {
@@ -73,7 +74,11 @@ function onImageLoad(id: string, media: StatusImageAttachment, event: Event): vo
   }
 
   const previewRatio = element.naturalWidth / element.naturalHeight
-  imageFitModes.value[id] = resolveFitModeByRatio(previewRatio)
+  const previewFit = resolveFitModeByRatio(previewRatio)
+  imageFitModes.value[id] = previewFit.mode
+  if (previewFit.dir) {
+    imageOverflowDirs.value[id] = previewFit.dir
+  }
 
   // Preview URL may be cropped by upstream. Probe original URL to get final fit mode.
   if (!media.url || media.url === media.previewUrl) {
@@ -87,10 +92,31 @@ function onImageLoad(id: string, media: StatusImageAttachment, event: Event): vo
     }
 
     const originalRatio = probe.naturalWidth / probe.naturalHeight
-    imageFitModes.value[id] = resolveFitModeByRatio(originalRatio)
+    const originalFit = resolveFitModeByRatio(originalRatio)
+    imageFitModes.value[id] = originalFit.mode
+    if (originalFit.dir) {
+      imageOverflowDirs.value[id] = originalFit.dir
+    }
+    else {
+      delete imageOverflowDirs.value[id]
+    }
   }
 
   probe.src = media.url
+}
+
+function imageMaskStyle(id: string): Record<string, string> {
+  const dir = imageOverflowDirs.value[id]
+  if (!dir) return {}
+
+  const gradient = dir === 'horizontal'
+    ? 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)'
+    : 'linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)'
+
+  return {
+    maskImage: gradient,
+    WebkitMaskImage: gradient,
+  }
 }
 
 function imageDisplayClass(id: string): string {
@@ -102,9 +128,27 @@ function imageDisplayClass(id: string): string {
   return `${baseImageClass.value} object-cover`
 }
 
+// ── 燈箱 ─────────────────────────────────────────────────────────
+const lightboxOpen = ref(false)
+const lightboxIndex = ref(0)
+
+const lightboxImages = computed(() =>
+  imageAttachments.value.map(m => ({
+    id: m.id,
+    url: m.url,
+    description: m.description,
+  }))
+)
+
+function openLightbox(index: number): void {
+  lightboxIndex.value = index
+  lightboxOpen.value = true
+}
+
 watch(imageAttachments, () => {
   failedImageIds.value = []
   imageFitModes.value = {}
+  imageOverflowDirs.value = {}
 })
 </script>
 
@@ -113,13 +157,15 @@ watch(imageAttachments, () => {
     <div
       v-for="(media, index) in visibleImages"
       :key="media.id"
-      class="relative overflow-hidden rounded-xl border border-stone-200 bg-stone-100"
+      class="relative overflow-hidden rounded-xl border border-stone-200 bg-stone-100 cursor-pointer"
+      @click="openLightbox(index)"
     >
       <img
         v-if="!isFailed(media.id)"
         :src="media.previewUrl || media.url"
         :alt="media.description || '貼文圖片'"
         :class="imageDisplayClass(media.id)"
+        :style="imageMaskStyle(media.id)"
         loading="lazy"
         @load="onImageLoad(media.id, media, $event)"
         @error="onImageError(media.id)"
@@ -127,7 +173,7 @@ watch(imageAttachments, () => {
 
       <div
         v-else
-        class="flex h-52 items-center justify-center px-4 text-xs text-stone-500"
+        class="flex h-45 items-center justify-center px-4 text-xs text-stone-500"
       >
         圖片載入失敗
       </div>
@@ -140,4 +186,11 @@ watch(imageAttachments, () => {
       </span>
     </div>
   </div>
+
+  <ImageLightbox
+    v-if="lightboxOpen"
+    :images="lightboxImages"
+    :initial-index="lightboxIndex"
+    @close="lightboxOpen = false"
+  />
 </template>

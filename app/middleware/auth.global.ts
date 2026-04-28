@@ -5,6 +5,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
   await auth.ensureSession()
 
   const protectedPrefixes = [
+    '/home',
+    '/explore',
+    '/search',
     '/status',
     '/notifications',
     '/messages',

@@ -23,7 +23,7 @@ defineEmits<{
 </script>
 
 <template>
-  <section class="mx-auto w-full max-w-2xl px-4 py-4">
+  <section class="mx-auto w-full max-w-2xl px-2 py-2">
     <LoadingSkeleton v-if="(isInitialLoading || isRefreshing) && items.length === 0" />
 
     <div v-else-if="initialError && items.length === 0" class="timeline-card rounded-2xl p-6 text-center">

@@ -26,7 +26,9 @@ const {
 const profileTitle = computed(() => {
   if (!profile.value) return '個人頁面'
   const name = profile.value.displayName?.trim() || profile.value.username
-  return `${name} 的個人頁面`
+  const localPart = profile.value.acct.split('@')[0]
+  const isLocal = !profile.value.acct.includes('@') || profile.value.acct.endsWith(`@${useRuntimeConfig().mastodonInstance}`)
+  return isLocal ? name : `${name} (@${localPart})`
 })
 useSeoMeta({ title: profileTitle })
 
@@ -101,8 +103,7 @@ watch(signal, async (value, previousValue) => {
       <p class="text-sm text-rose-700">{{ initialError }}</p>
       <button
         class="mt-4 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
-        @click="retryInitial"
-      >
+        @click="retryInitial">
         重試
       </button>
     </div>
@@ -130,8 +131,7 @@ watch(signal, async (value, previousValue) => {
           <p class="text-sm text-rose-700">{{ loadMoreError }}</p>
           <button
             class="mt-3 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
-            @click="loadMore"
-          >
+            @click="loadMore">
             重試載入更多
           </button>
         </div>
