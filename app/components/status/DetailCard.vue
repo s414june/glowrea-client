@@ -17,20 +17,20 @@ const props = defineProps<{
       >
 
       <div class="min-w-0 flex-1">
-        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <p class="font-semibold text-stone-800">
+        <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <p class="min-w-0 truncate font-semibold text-stone-800">
             {{ status.account.displayName || status.account.username }}
           </p>
-          <p class="text-sm text-stone-500">
+          <p class="min-w-0 truncate text-sm text-stone-500">
             @{{ status.account.acct || status.account.username }}
           </p>
-          <p class="text-sm text-stone-500">
+          <p class="shrink-0 text-sm text-stone-500">
             • {{ new Date(status.createdAt).toLocaleString('zh-TW') }}
           </p>
         </div>
 
         <div
-          class="prose prose-stone mt-3 max-w-none text-sm"
+          class="prose prose-stone mt-3 max-w-none break-words text-sm"
           v-html="status.content"
         />
 
