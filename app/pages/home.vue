@@ -3,6 +3,8 @@ import { useAuth } from '~/composables/useAuth'
 import { useHomeRefreshSignal } from '~/composables/useHomeRefreshSignal'
 import LocalTimeline from '~/components/timeline/LocalTimeline.vue'
 
+useSeoMeta({ title: '首頁' })
+
 const auth = useAuth()
 const route = useRoute()
 const { signal } = useHomeRefreshSignal()

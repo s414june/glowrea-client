@@ -119,6 +119,17 @@
 - 若貼文無圖片，不保留空白圖片區塊。
 - 首頁與詳情頁需共用同一個圖片展示元件（`StatusImageGallery`）以維持規則一致。
 
+### Custom Emoji（自定義表符）
+
+Mastodon 實例可定義自訂表符（`:shortcode:` 語法），貼文 `content` HTML 中以 `:shortcode:` 純文字出現，API 同時回傳 `emojis[]` 陣列提供圖片 URL。
+
+- 每筆 status 的 `emojis` 欄位包含該貼文使用到的自訂表符清單。
+- Client 端需在渲染 `content` 前，將 `:shortcode:` 替換為 `<img>` 內嵌圖片。
+- 圖片以 `.custom-emoji` class 渲染，`height: 1.25em; width: auto; vertical-align: middle`，與文字對齊。
+- 僅接受 `https://` 開頭的 emoji URL，避免注入風險。
+- 若 `emojis` 為空或某個 shortcode 不存在對應紀錄，保留原始 `:shortcode:` 文字。
+- 轉換邏輯封裝於 `app/utils/emoji.ts` 的 `resolveCustomEmoji(content, emojis)` 工具函式。
+
 ### Loading State
 
 - 初次進入頁面時顯示 skeleton 或簡單 loading 文案
@@ -154,10 +165,17 @@
 以下為 home timeline 初期顯示所需的最小欄位，實際型別可依 API 回應再擴充：
 
 ```ts
+type CustomEmoji = {
+  shortcode: string
+  url: string
+  static_url: string
+}
+
 type TimelineStatus = {
 	id: string
 	content: string
 	createdAt: string
+	emojis?: CustomEmoji[]
 	mediaAttachments?: Array<{
 		id: string
 		type: 'image' | 'video' | 'gifv' | 'audio' | 'unknown'

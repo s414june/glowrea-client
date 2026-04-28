@@ -1,5 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: ['auth'] })
+useSeoMeta({ title: '發文' })
 </script>
 
 <template>

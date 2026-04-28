@@ -2,6 +2,7 @@
 import type { TimelineStatus } from '#shared/types/timeline'
 import StatusItem from '~/components/timeline/StatusItem.vue'
 import LoadingSkeleton from '~/components/timeline/LoadingSkeleton.vue'
+import ScrollToTopButton from '~/components/timeline/ScrollToTopButton.vue'
 
 defineProps<{
   items: TimelineStatus[]
@@ -66,5 +67,7 @@ defineEmits<{
         已經到底了
       </p>
     </div>
+
+    <ScrollToTopButton />
   </section>
 </template>

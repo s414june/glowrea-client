@@ -1,3 +1,9 @@
+export type CustomEmoji = {
+  shortcode: string
+  url: string
+  static_url: string
+}
+
 export type TimelineAccount = {
   id: string
   username: string
@@ -18,6 +24,7 @@ export type TimelineStatus = {
   id: string
   content: string
   created_at: string
+  emojis?: CustomEmoji[]
   media_attachments?: TimelineMediaAttachment[]
   account: TimelineAccount
   reblog?: TimelineStatus | null

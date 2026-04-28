@@ -18,6 +18,14 @@ const {
   retry
 } = useStatusDetail()
 
+const statusTitle = computed(() => {
+  if (!status.value) return '貼文詳情'
+  const s = status.value.reblog || status.value
+  const name = s.account.displayName?.trim() || s.account.username
+  return `${name} 的貼文`
+})
+useSeoMeta({ title: statusTitle })
+
 const statusId = computed(() => {
   const raw = route.params.id
   if (typeof raw !== 'string') {

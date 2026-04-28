@@ -23,6 +23,13 @@ const {
   retryInitial
 } = useProfilePage()
 
+const profileTitle = computed(() => {
+  if (!profile.value) return '個人頁面'
+  const name = profile.value.displayName?.trim() || profile.value.username
+  return `${name} 的個人頁面`
+})
+useSeoMeta({ title: profileTitle })
+
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
 

@@ -4,6 +4,12 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss'],
   css: ['~/assets/css/main.css'],
+  app: {
+    head: {
+      titleTemplate: '%s｜Glowrea',
+      title: 'Glowrea',
+    },
+  },
   runtimeConfig: {
     mastodonApiBase: '',
     mastodonToken: '',

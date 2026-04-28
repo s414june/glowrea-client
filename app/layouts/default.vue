@@ -6,6 +6,7 @@ import { useAppNavigation } from '~/composables/useAppNavigation'
 import { useHomeRefreshSignal } from '~/composables/useHomeRefreshSignal'
 import { useProfileRefreshSignal } from '~/composables/useProfileRefreshSignal'
 import { useAuth } from '~/composables/useAuth'
+import { useScrollBehavior } from '~/composables/useScrollBehavior'
 import { navigationIcons } from '~/components/layout/navigationIcons'
 import type { NavItem } from '~/composables/useAppNavigation'
 
@@ -28,6 +29,8 @@ function handleNavClick(item: NavItem): void {
     triggerProfileRefresh()
   }
 }
+
+const { headerVisible } = useScrollBehavior()
 
 const isLoginPage = computed(() => route.path === '/login')
 
@@ -52,7 +55,11 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
     </div>
 
     <div class="min-h-screen">
-      <header class="sticky top-0 z-20 border-b border-stone-200 bg-[#faf7f2]/95 px-4 py-3 backdrop-blur lg:hidden">
+      <!-- 手機版 header：fixed + 滾動方向動畫 -->
+      <header
+        class="fixed inset-x-0 top-0 z-20 border-b border-stone-200 bg-[#faf7f2]/95 px-4 py-3 backdrop-blur transition-transform duration-300 ease-in-out lg:hidden"
+        :class="headerVisible ? 'translate-y-0' : '-translate-y-full'"
+      >
         <div class="mx-auto flex w-full max-w-2xl items-center justify-between">
           <button
             class="headline-font flex items-center gap-2 rounded-xl px-3 text-md font-semibold text-[var(--nav-accent)]"
@@ -109,6 +116,9 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
           </div>
         </div>
       </header>
+
+      <!-- 補足 fixed header 推走的空間（僅手機） -->
+      <div class="h-16 lg:hidden" />
 
       <div class="pb-20 lg:pb-0">
         <slot />

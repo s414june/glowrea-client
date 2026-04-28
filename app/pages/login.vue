@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useAuth } from '~/composables/useAuth'
 
+useSeoMeta({ title: '登入' })
+
 const auth = useAuth()
 
 async function handleLogin(): Promise<void> {

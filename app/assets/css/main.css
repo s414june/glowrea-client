@@ -60,3 +60,12 @@ body {
 .prose a:hover {
   color: #1877f2;
 }
+
+/* Mastodon custom emoji inline images */
+.custom-emoji {
+  display: inline-block;
+  height: 1.25em;
+  width: auto;
+  vertical-align: middle;
+  object-fit: contain;
+}

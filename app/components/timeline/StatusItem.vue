@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TimelineStatus } from '#shared/types/timeline'
+import { resolveCustomEmoji } from '~/utils/emoji'
 import StatusImageGallery from '~/components/status/StatusImageGallery.vue'
 
 const props = defineProps<{
@@ -41,6 +42,10 @@ const imageAttachments = computed(() => {
     description: media.description || `${authorName.value} 的貼文圖片`
   }))
 })
+
+const renderedContent = computed(() =>
+  resolveCustomEmoji(activeStatus.value.content, activeStatus.value.emojis ?? [])
+)
 
 const router = useRouter()
 
@@ -86,7 +91,7 @@ function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
           </p>
         </div>
 
-        <div class="prose prose-stone mt-2 max-w-none break-words text-sm" v-html="activeStatus.content" />
+        <div class="prose prose-stone mt-2 max-w-none break-words text-sm" v-html="renderedContent" />
 
         <StatusImageGallery
           :attachments="imageAttachments"
