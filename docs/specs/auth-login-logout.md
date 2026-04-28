@@ -73,9 +73,12 @@
 
 ### Route Guard Rules
 
-- 未登入存取 `/home` -> 導向 `/login`
-- 已登入存取 `/login` -> 導向 `/home`
+- 未登入存取 `/home`（或任何受保護路由）→ 導向 `/login`
+- 已登入存取 `/login` → 導向 `/home`
 - 登出完成後，任何受保護路由都應視為未登入
+- 根路由 `/` → 依登入狀態重導向（已登入 `/home`、未登入 `/login`），以 `replace: true` 取代歷史記錄
+- 不存在的路由 → 由 Nuxt error page（`app/error.vue`）顯示 404，**不導向 `/login`**
+  - 403（未授權）與 404（不存在）行為完全分開，避免混淆
 
 ---
 
