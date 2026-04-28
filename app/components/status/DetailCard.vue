@@ -1,30 +1,10 @@
 <script setup lang="ts">
 import type { StatusDetail } from '#shared/types/status'
+import StatusImageGallery from '~/components/status/StatusImageGallery.vue'
 
 const props = defineProps<{
   status: StatusDetail
 }>()
-
-const imageAttachments = computed(() => {
-  return (props.status.mediaAttachments || []).filter((media) => media.type === 'image')
-})
-
-const visibleImages = computed(() => imageAttachments.value.slice(0, 4))
-const hiddenCount = computed(() => Math.max(0, imageAttachments.value.length - 4))
-
-const failedImageIds = ref<string[]>([])
-
-function isFailed(id: string): boolean {
-  return failedImageIds.value.includes(id)
-}
-
-function onImageError(id: string): void {
-  if (failedImageIds.value.includes(id)) {
-    return
-  }
-
-  failedImageIds.value = [...failedImageIds.value, id]
-}
 </script>
 
 <template>
@@ -54,39 +34,7 @@ function onImageError(id: string): void {
           v-html="status.content"
         />
 
-        <div
-          v-if="visibleImages.length"
-          class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
-        >
-          <div
-            v-for="(media, index) in visibleImages"
-            :key="media.id"
-            class="relative overflow-hidden rounded-xl border border-stone-200 bg-stone-100"
-          >
-            <img
-              v-if="!isFailed(media.id)"
-              :src="media.previewUrl || media.url"
-              :alt="media.description || '貼文圖片'"
-              class="h-52 w-full object-cover"
-              loading="lazy"
-              @error="onImageError(media.id)"
-            >
-
-            <div
-              v-else
-              class="flex h-52 items-center justify-center px-4 text-xs text-stone-500"
-            >
-              圖片載入失敗
-            </div>
-
-            <span
-              v-if="index === visibleImages.length - 1 && hiddenCount > 0"
-              class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white"
-            >
-              +{{ hiddenCount }}
-            </span>
-          </div>
-        </div>
+        <StatusImageGallery :attachments="status.mediaAttachments || []" />
       </div>
     </div>
   </article>

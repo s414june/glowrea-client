@@ -1,8 +1,8 @@
 export type NavItem = {
-  key: 'home' | 'notifications' | 'messages' | 'search' | 'explore' | 'profile' | 'more'
+  key: 'home' | 'notifications' | 'messages' | 'search' | 'explore' | 'profile' | 'more' | 'compose'
   label: string
   to: string
-  icon: 'home' | 'notifications' | 'messages' | 'search' | 'explore' | 'profile' | 'more'
+  icon: 'home' | 'notifications' | 'messages' | 'search' | 'explore' | 'profile' | 'more' | 'compose'
 }
 
 const navItems: NavItem[] = [
@@ -12,13 +12,18 @@ const navItems: NavItem[] = [
   { key: 'search', label: '搜尋', to: '/search', icon: 'search' },
   { key: 'explore', label: '探索', to: '/explore', icon: 'explore' },
   { key: 'profile', label: '個人檔案', to: '/profile', icon: 'profile' },
-  { key: 'more', label: '更多', to: '/more', icon: 'more' }
+  { key: 'more', label: '更多', to: '/more', icon: 'more' },
+  { key: 'compose', label: '發文', to: '/compose', icon: 'compose' },
 ]
 
 export function useAppNavigation() {
-  const desktopItems = navItems
+  const desktopItems = navItems.filter(i => i.key !== 'compose')
   const mobileTopItems = navItems.filter((item) => ['notifications', 'search', 'more'].includes(item.key))
-  const mobileBottomItems = navItems.filter((item) => ['home', 'messages', 'explore', 'profile'].includes(item.key))
+
+  const mobileBottomOrder = ['home', 'messages', 'compose', 'explore', 'profile']
+  const mobileBottomItems = mobileBottomOrder
+    .map(key => navItems.find(i => i.key === key))
+    .filter((i): i is NavItem => i !== undefined)
 
   return {
     desktopItems,

@@ -5,6 +5,7 @@ import {
   House,
   Mail,
   MoreHorizontal,
+  Plus,
   Search,
   UserCircle2
 } from 'lucide-vue-next'
@@ -16,5 +17,6 @@ export const navigationIcons: Record<string, Component> = {
   search: Search,
   explore: Compass,
   profile: UserCircle2,
-  more: MoreHorizontal
+  more: MoreHorizontal,
+  compose: Plus,
 }

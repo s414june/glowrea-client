@@ -111,21 +111,7 @@ onBeforeUnmount(() => {
 
 <template>
   <main>
-    <section class="mx-auto w-full max-w-2xl px-4 pt-6 sm:pt-8">
-      <div class="timeline-card flex items-center justify-between rounded-2xl px-4 py-3">
-        <p class="text-xs text-stone-500 sm:text-sm">
-          已登入狀態
-        </p>
-
-        <button
-          class="rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-70"
-          :disabled="auth.isLoading.value"
-          @click="handleLogout"
-        >
-          {{ auth.isLoading.value ? '登出中...' : '登出' }}
-        </button>
-      </div>
-
+    <section class="mx-auto w-full max-w-2xl px-4 pt-4">
       <p
         v-if="auth.errorMessage.value"
         class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"

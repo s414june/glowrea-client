@@ -1,13 +1,27 @@
 <script setup lang="ts">
-import { Flower2 } from 'lucide-vue-next'
 import AppSidebar from '~/components/layout/AppSidebar.vue'
+import GlowreaLogo from '~/components/layout/GlowreaLogo.vue'
+import MorePopoverMenu from '~/components/layout/MorePopoverMenu.vue'
 import { useAppNavigation } from '~/composables/useAppNavigation'
 import { useHomeRefreshSignal } from '~/composables/useHomeRefreshSignal'
+import { useProfileRefreshSignal } from '~/composables/useProfileRefreshSignal'
 import { navigationIcons } from '~/components/layout/navigationIcons'
+import type { NavItem } from '~/composables/useAppNavigation'
 
 const route = useRoute()
 const { mobileTopItems, mobileBottomItems } = useAppNavigation()
 const { triggerHomeRefresh } = useHomeRefreshSignal()
+const { triggerProfileRefresh } = useProfileRefreshSignal()
+const { isOpen: moreMenuOpen, toggle: toggleMoreMenu } = useMoreMenu()
+
+const regularMobileTopItems = computed(() => mobileTopItems.filter(i => i.key !== 'more'))
+const mobileMoreButtonRef = ref<HTMLElement | null>(null)
+
+function handleNavClick(item: NavItem): void {
+  if (item.key === 'profile') {
+    triggerProfileRefresh()
+  }
+}
 
 const isLoginPage = computed(() => route.path === '/login')
 
@@ -35,26 +49,27 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
       <header class="sticky top-0 z-20 border-b border-stone-200 bg-[#faf7f2]/95 px-4 py-3 backdrop-blur lg:hidden">
         <div class="mx-auto flex w-full max-w-2xl items-center justify-between">
           <button
-            class="headline-font flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-stone-800"
+            class="headline-font flex items-center gap-2 rounded-xl px-3 text-md font-semibold text-[var(--nav-accent)]"
             title="回到首頁並刷新"
             aria-label="回到首頁並刷新"
             @click="goHomeAndRefreshTimeline"
           >
-            <Flower2 class="h-4 w-4" aria-hidden="true" />
+            <GlowreaLogo class="h-10 w-10" />
             <span>Glowrea</span>
           </button>
 
           <div class="flex items-center gap-2">
             <NuxtLink
-              v-for="item in mobileTopItems"
+              v-for="item in regularMobileTopItems"
               :key="item.key"
               :to="item.to"
               :title="item.label"
               :aria-label="item.label"
               class="rounded-xl p-2 transition-colors"
               :class="isActive(item.to)
-                ? 'bg-teal-600 text-white'
-                : 'bg-stone-200 text-stone-700'"
+                ? 'nav-active'
+                : 'text-stone-700 hover:text-stone-900'"
+              @click="handleNavClick(item)"
             >
               <component
                 :is="navigationIcons[item.icon]"
@@ -63,6 +78,28 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
               />
               <span class="sr-only">{{ item.label }}</span>
             </NuxtLink>
+
+            <!-- 更多：彈窗觸發器 -->
+            <div class="relative">
+              <button
+                ref="mobileMoreButtonRef"
+                class="rounded-xl p-2 transition-colors"
+                :class="moreMenuOpen ? 'nav-active' : 'text-stone-700 hover:text-stone-900'"
+                :aria-expanded="moreMenuOpen"
+                aria-haspopup="menu"
+                title="更多"
+                aria-label="更多"
+                @click="toggleMoreMenu"
+              >
+                <component
+                  :is="navigationIcons.more"
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                />
+                <span class="sr-only">更多</span>
+              </button>
+              <MorePopoverMenu placement="mobile-top" :trigger-el="mobileMoreButtonRef" />
+            </div>
           </div>
         </div>
       </header>
@@ -71,26 +108,61 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
         <slot />
       </div>
 
+      <!-- 桌機版發文 FAB -->
+      <NuxtLink
+        to="/compose"
+        title="發文"
+        aria-label="發文"
+        class="fixed bottom-8 right-8 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-stone-200 text-stone-700 shadow-sm transition-colors hover:bg-stone-300 hover:shadow-md lg:flex border border-stone-300"
+      >
+        <component
+          :is="navigationIcons.compose"
+          class="h-6 w-6"
+          aria-hidden="true"
+        />
+      </NuxtLink>
+
       <nav class="fixed inset-x-0 bottom-0 z-20 border-t border-stone-200 bg-[#faf7f2]/95 px-3 py-2 backdrop-blur lg:hidden">
-        <div class="mx-auto grid w-full max-w-2xl grid-cols-4 gap-2">
-          <NuxtLink
-            v-for="item in mobileBottomItems"
-            :key="item.key"
-            :to="item.to"
-            :title="item.label"
-            :aria-label="item.label"
-            class="flex items-center justify-center rounded-xl px-2 py-2 transition-colors"
-            :class="isActive(item.to)
-              ? 'bg-teal-600 text-white'
-              : 'text-stone-700 hover:bg-stone-200'"
-          >
-            <component
-              :is="navigationIcons[item.icon]"
-              class="h-5 w-5"
-              aria-hidden="true"
-            />
-            <span class="sr-only">{{ item.label }}</span>
-          </NuxtLink>
+        <div class="mx-auto grid w-full max-w-2xl grid-cols-5 gap-2">
+          <template v-for="item in mobileBottomItems" :key="item.key">
+            <!-- 發文：特殊圓形 accent 按鈕 -->
+            <NuxtLink
+              v-if="item.key === 'compose'"
+              :to="item.to"
+              :title="item.label"
+              :aria-label="item.label"
+              class="flex items-center justify-center"
+            >
+              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-stone-200 text-stone-700 shadow-sm transition-colors hover:bg-stone-300">
+                <component
+                  :is="navigationIcons[item.icon]"
+                  class="h-5 w-5"
+                  aria-hidden="true"
+                />
+              </span>
+              <span class="sr-only">{{ item.label }}</span>
+            </NuxtLink>
+
+            <!-- 一般導覽項目 -->
+            <NuxtLink
+              v-else
+              :to="item.to"
+              :title="item.label"
+              :aria-label="item.label"
+              class="flex items-center justify-center rounded-xl px-2 py-2 transition-colors"
+              :class="isActive(item.to)
+                ? 'nav-active'
+                : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'"
+              @click="handleNavClick(item)"
+            >
+              <component
+                :is="navigationIcons[item.icon]"
+                class="h-5 w-5"
+                aria-hidden="true"
+              />
+              <span class="sr-only">{{ item.label }}</span>
+            </NuxtLink>
+          </template>
         </div>
       </nav>
     </div>

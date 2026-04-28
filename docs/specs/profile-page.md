@@ -1,0 +1,247 @@
+# Feature: Profile Page（個人檔案頁）- 技術規格
+
+## 目標
+
+建立登入後可使用的「我的個人檔案頁」，顯示帳號基本資訊與該帳號貼文列表，並維持目前專案責任分層：
+
+- route page：頁面層狀態與互動
+- composable：資料載入、分頁與錯誤/重試流程
+- api client：前端呼叫本地 server endpoint
+- server api：代理 Mastodon API + session 驗證
+
+---
+
+## Scope
+
+### In Scope
+
+- 新增 `/profile` 頁面內容（取代現有 Coming soon）
+- 顯示「我的帳號」資訊：名稱、handle、頭像、封面、個人簡介、統計數（貼文/追蹤中/追蹤者）
+- 顯示個人貼文列表（時間序由新到舊）
+- 支援首次載入、載入更多、刷新、錯誤重試
+- 重用既有貼文元件與圖片元件（`StatusItem` / `StatusImageGallery`）
+
+### Out of Scope
+
+- 他人個人檔案頁（`/profile/:acct`）
+- 編輯個人檔案
+- 追蹤/取消追蹤互動
+- pinned / 媒體頁籤 / 喜歡頁籤
+- 進階 filter（僅媒體、僅原創等）
+
+---
+
+## User Story
+
+作為已登入使用者，我希望在個人檔案頁看到我的帳號資訊與近期貼文，並可像首頁一樣向下載入更多內容。
+
+---
+
+## Route
+
+### 新增/調整路由
+
+- path: `/profile`
+- page: `app/pages/profile.vue`
+- 套用既有 auth middleware（未登入導向 `/login`）
+
+### Route Responsibility
+
+- 負責頁面結構與互動（刷新、重試、載入更多）
+- 不在 route 層處理 Mastodon response 映射
+
+### 刷新觸發機制
+
+- 使用者點擊導覽列「個人檔案」頁籤時觸發 refresh signal（`useProfileRefreshSignal`）
+- 若 `/profile` 頁面已有資料 -> 執行 `refresh()`（重拉最新資料，不清空現有列表）
+- 若 `/profile` 頁面尚無資料（初次進入）-> 執行 `loadInitial()`
+- 不設獨立刷新按鈕，刷新行為完全由導覽點擊驅動
+
+---
+
+## UI 規格
+
+### Page Layout
+
+1. Profile Header 區塊
+- 封面圖（`header`）
+- 頭像（`avatar`）
+- 顯示名稱 + handle
+- 個人簡介（支援 HTML，沿用既有安全策略）
+- 統計數：`statuses_count`、`following_count`、`followers_count`
+
+2. 貼文列表區塊
+- 清單樣式沿用 timeline 視覺
+- 每筆貼文可點擊進入 `/status/:id`
+- 內文連結點擊需阻止卡片導頁（沿用既有規則）
+
+### States
+
+- 初始載入：顯示 skeleton
+- 空資料：顯示「尚無貼文」提示
+- 錯誤：顯示錯誤訊息 + Retry
+- 載入更多：底部 loading indicator
+
+---
+
+## 資料來源與 API 串接
+
+## Mastodon Upstream API
+
+1. 取得目前登入帳號資訊
+- `GET /api/v1/accounts/verify_credentials`
+
+2. 取得目前帳號貼文
+- `GET /api/v1/accounts/:id/statuses`
+- 建議 query：
+  - `limit=20`
+  - `exclude_replies=false`（初版可顯示回覆）
+  - `exclude_reblogs=false`（初版可顯示轉推）
+  - 分頁使用 `max_id`
+
+## 專案內 Server API（建議）
+
+1. `GET /api/profile/me`
+- 代理 verify_credentials
+- 回傳 profile 基本資料
+
+2. `GET /api/profile/me/statuses`
+- query: `maxId?`
+- 代理 accounts/:id/statuses
+- 回傳貼文列表 + 下一頁 `nextMaxId`
+
+### 錯誤碼策略
+
+- `401`: 未登入或 session 無效
+- `404`: 帳號不存在/不可見（理論上 me 路徑少見）
+- `500`: 上游 API 或伺服器錯誤
+
+---
+
+## 型別設計（建議）
+
+新增：`shared/types/profile.ts`
+
+```ts
+export type ProfileSummary = {
+  id: string
+  username: string
+  acct: string
+  displayName: string
+  note: string
+  avatar: string
+  header: string
+  statusesCount: number
+  followingCount: number
+  followersCount: number
+}
+
+export type ProfileStatusesPage = {
+  items: TimelineStatus[]
+  nextMaxId: string | null
+}
+
+export type ProfileMeResponse = {
+  profile: ProfileSummary
+}
+
+export type ProfileStatusesResponse = ProfileStatusesPage
+```
+
+備註：`TimelineStatus` 可沿用既有 `shared/types/timeline.ts`，避免重複定義貼文型別。
+
+---
+
+## 檔案切分（建議）
+
+### 前端（app）
+
+- `app/pages/profile.vue`
+  - 組合 Header + 貼文列表 + states
+- `app/composables/useProfilePage.ts`
+  - 管理 profile 資訊、貼文分頁、刷新、錯誤
+- `app/utils/api/profile.ts`
+  - 封裝 profile API 請求
+- `app/components/profile/ProfileHeader.vue`
+  - 顯示 profile summary
+
+### 後端（server）
+
+- `server/api/profile/me.get.ts`
+- `server/api/profile/me/statuses.get.ts`
+
+---
+
+## 狀態管理（Composable）
+
+```ts
+type ProfilePageState = {
+  profile: Ref<ProfileSummary | null>
+  items: Ref<TimelineStatus[]>
+  isInitialLoading: Ref<boolean>
+  isLoadingMore: Ref<boolean>
+  isRefreshing: Ref<boolean>
+  initialError: Ref<string | null>
+  loadMoreError: Ref<string | null>
+  hasMore: ComputedRef<boolean>
+  isEmpty: ComputedRef<boolean>
+  loadInitial: () => Promise<void>
+  loadMore: () => Promise<void>
+  refresh: () => Promise<void>
+  retryInitial: () => Promise<void>
+}
+```
+
+行為規則：
+
+- `loadInitial`
+  - 並行請求 profile + 第一頁 statuses
+  - 任一關鍵請求失敗 => `initialError`
+
+- `loadMore`
+  - 依 `nextMaxId` 載入下一頁
+  - 失敗只更新 `loadMoreError`，不清空現有列表
+
+- `refresh`
+  - 重新請求 profile + 第一頁 statuses
+  - 保持頁面可用，不可白頁
+
+---
+
+## 與既有功能整合
+
+- 貼文清單可沿用 `StatusItem`
+- 圖片顯示沿用 `StatusImageGallery`
+- 圖片比例規則沿用既有規格：
+  - ratio `> 16:9` 或 `< 9:16` -> `cover`
+  - ratio `9:16 ~ 16:9`（含邊界）-> 全顯示
+
+---
+
+## 驗收條件（技術）
+
+1. 已登入進入 `/profile` 可看到個人檔案 header。
+2. 可看到該帳號貼文列表，並可點擊進入 `/status/:id`。
+3. 初始載入、空資料、錯誤、載入更多狀態皆可正確顯示。
+4. 向下捲動可載入更多貼文，且不重複。
+5. 圖片渲染規則與首頁/詳情頁一致。
+6. `pnpm dev` 下 TypeScript 無新增錯誤。
+
+---
+
+## 實作階段
+
+### Phase 1
+
+- 建立 profile summary API + profile page 基本 UI
+- 顯示第一頁貼文
+
+### Phase 2
+
+- 加入分頁載入更多
+- 加入 refresh/retry 與完整錯誤狀態
+
+### Phase 3
+
+- 微調 profile header 視覺（行動版排版、長文本截斷）
+- 規劃 `/profile/:acct` 擴充能力

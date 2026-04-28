@@ -8,6 +8,12 @@ See also: `docs/architecture/app-shell-navigation.md` for app shell navigation a
 - Owns: page-level layout, invoking timeline feature composable, wiring retry/refresh/load more actions.
 - Does not own: Mastodon response transformation, dedupe policy, token persistence, OAuth flow.
 
+## `/profile`
+
+- Role: current user profile page after login.
+- Owns: profile header rendering, wiring profile timeline load/retry/refresh/load-more interactions.
+- Does not own: Mastodon response transformation, token/session validation logic, upstream API details.
+
 ## Responsibilities Split
 
 - Route page: orchestrates states and interactions.

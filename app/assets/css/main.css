@@ -12,6 +12,12 @@
   --text-subtle: #6c6257;
   --accent: #0e8f7f;
   --accent-soft: #e2f4f1;
+  --nav-accent: #0e8f7f;
+}
+
+.nav-active {
+  color: var(--nav-accent);
+  font-weight: 600;
 }
 
 html,

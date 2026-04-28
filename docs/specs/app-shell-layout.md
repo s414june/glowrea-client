@@ -31,7 +31,7 @@
 - 支援桌機版主要體驗（左欄固定）
 - 行動版採雙列導覽：
   - 頂部列：左上角 Logo；右側為 通知、搜尋、更多
-  - 底部貼底功能列：首頁、私訊、探索、個人檔案
+  - 底部貼底功能列：首頁、私訊、發文（+ 圓形按鈕）、探索、個人檔案
 
 ### Out of Scope
 
@@ -67,7 +67,7 @@
 - 搜尋 -> `/search`
 - 探索 -> `/explore`
 - 個人檔案 -> `/profile`
-- 更多 -> `/more`
+- 更多 -> 彈窗菜單（非路由，詳見 [more-popover-menu.md](more-popover-menu.md)）
 
 備註：
 
@@ -102,16 +102,19 @@
   - 左側：Logo（點擊刷新當前頁）
   - 右側：通知、搜尋、更多
 - 底部列（sticky bottom）：
-  - 首頁、私訊、探索、個人檔案
-  - 每項需有 icon 與文字（或初版文字）
+  - 首頁、私訊、發文（`+` 圓形 accent 按鈕）、探索、個人檔案
+  - 每項需有 icon 與文字（或初版文字）；發文按鈕只顯示 icon，無文字 label
 - 頂部與底部導覽都需支援 active 樣式。
 - 主內容需預留底部安全空間（避免被底部列遮住）。
 
 ### Navigation Item States
 
-- Default：一般文字與 icon
-- Hover：背景或文字顏色改變
-- Active：明確高亮（底色或左側 indicator）
+- Default：一般文字與 icon（`text-stone-700`）
+- Hover：背景或文字顏色微調（`hover:bg-stone-100 hover:text-stone-900`）
+- Active：**icon 與文字本身改為 accent 色（`--nav-accent`）**，不加底色背景
+  - accent 色統一由 CSS 變數 `--nav-accent`（定義於 `main.css`）控制
+  - 需要換色時只改 `--nav-accent` 即可，桌機左欄、手機頂部列、手機底部列全部同步生效
+  - 對應 Tailwind utility class：`.nav-active`（`color: var(--nav-accent); font-weight: 600`）
 - Disabled（可選）：尚未可用功能可先灰化或導向 placeholder
 
 ### Logo Interaction
@@ -167,7 +170,7 @@ type NavItem = {
 4. 點擊導覽項目會導向對應 route。
 5. 當前 route 對應項目有 active 樣式。
 6. 行動版顯示頂部列：左側 Logo、右側通知/搜尋/更多。
-7. 行動版顯示底部貼底功能列：首頁/私訊/探索/個人檔案。
+7. 行動版顯示底部貼底功能列：首頁/私訊/發文（+）/探索/個人檔案。
 8. 行動版主內容不被底部功能列遮擋。
 
 ---

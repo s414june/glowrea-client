@@ -22,13 +22,7 @@ defineEmits<{
 </script>
 
 <template>
-  <section class="mx-auto w-full max-w-2xl px-4 py-6 sm:py-10">
-    <header class="mb-5 flex items-center justify-between">
-      <span class="text-sm font-medium text-stone-400">
-        {{ isRefreshing ? 'Refreshing...' : '' }}
-      </span>
-    </header>
-
+  <section class="mx-auto w-full max-w-2xl px-4 py-4">
     <LoadingSkeleton v-if="(isInitialLoading || isRefreshing) && items.length === 0" />
 
     <div v-else-if="initialError && items.length === 0" class="timeline-card rounded-2xl p-6 text-center">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TimelineStatus } from '#shared/types/timeline'
+import StatusImageGallery from '~/components/status/StatusImageGallery.vue'
 
 const props = defineProps<{
   status: TimelineStatus
@@ -32,17 +33,14 @@ const formattedTime = computed(() => {
 })
 
 const imageAttachments = computed(() => {
-  return (activeStatus.value.media_attachments || []).filter((media) => media.type === 'image')
+  return (activeStatus.value.media_attachments || []).map((media) => ({
+    id: media.id,
+    type: media.type,
+    url: media.url,
+    previewUrl: media.preview_url,
+    description: media.description || `${authorName.value} 的貼文圖片`
+  }))
 })
-
-const primaryImage = computed(() => imageAttachments.value[0] || null)
-const extraImageCount = computed(() => Math.max(0, imageAttachments.value.length - 1))
-
-const hasImageError = ref(false)
-
-function onImageError(): void {
-  hasImageError.value = true
-}
 
 const router = useRouter()
 
@@ -90,31 +88,9 @@ function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
 
         <div class="prose prose-stone mt-2 max-w-none text-sm" v-html="activeStatus.content" />
 
-        <div v-if="primaryImage" class="mt-3">
-          <div
-            v-if="hasImageError"
-            class="rounded-xl border border-stone-200 bg-stone-100 px-4 py-8 text-center text-xs text-stone-500"
-          >
-            圖片載入失敗
-          </div>
-
-          <div v-else class="relative overflow-hidden rounded-xl border border-stone-200 bg-stone-100">
-            <img
-              :src="primaryImage.preview_url || primaryImage.url"
-              :alt="primaryImage.description || `${authorName} 的貼文圖片`"
-              class="h-44 w-full object-cover"
-              loading="lazy"
-              @error="onImageError"
-            >
-
-            <span
-              v-if="extraImageCount > 0"
-              class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white"
-            >
-              +{{ extraImageCount }}
-            </span>
-          </div>
-        </div>
+        <StatusImageGallery
+          :attachments="imageAttachments"
+        />
       </div>
     </div>
   </article>
