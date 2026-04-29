@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useAuth } from '~/composables/useAuth'
 import { useHomeRefreshSignal } from '~/composables/useHomeRefreshSignal'
-import LocalTimeline from '~/components/timeline/LocalTimeline.vue'
 
 useSeoMeta({ title: '首頁' })
 
@@ -11,19 +10,6 @@ const { signal } = useHomeRefreshSignal()
 const lastAppliedRefreshSignal = ref(0)
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
-
-const { hasInstance, ensureHostname } = useInstanceConfig()
-
-// 確保 instance hostname 已載入（SSR 時透過 cookie 轉送）
-const headers = useRequestHeaders(['cookie'])
-await useAsyncData('instance-config', () =>
-  $fetch<{ hostname: string | null }>('/api/config/instance', { headers }).then((d) => {
-    const { hostname } = useInstanceConfig()
-    hostname.value = d.hostname
-    return d
-  }),
-  { server: true, lazy: false },
-)
 
 const {
   items,
@@ -80,12 +66,12 @@ onMounted(async () => {
 })
 
 watch(signal, async (value, previousValue) => {
-  if (!auth.isAuthenticated.value) return // 未登入：忽略刷新訊號
+  if (!auth.isAuthenticated.value) return
   if (!value || value === previousValue) {
     return
   }
 
-  if (route.path !== '/home') {
+  if (route.path !== '/timelines') {
     return
   }
 
@@ -120,15 +106,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <!--
-    未登入三態：
-    - hasInstance = true  → 本站時間軸（LocalTimeline）
-    - hasInstance = false → 聯邦時間軸（尚未開發 → ComingSoon）
-  -->
-  <template v-if="!auth.isAuthenticated.value">
-    <LocalTimeline v-if="hasInstance" />
-    <ComingSoon v-else label="聯邦時間軸" />
-  </template>
+  <!-- 未登入：顯示佔位 -->
+  <ComingSoon v-if="!auth.isAuthenticated.value" label="追蹤時間軸" />
 
   <main v-else>
     <section v-if="auth.errorMessage.value" class="mx-auto w-full max-w-2xl px-4 pt-4">
@@ -136,10 +115,19 @@ onBeforeUnmount(() => {
         {{ auth.errorMessage.value }}
       </p>
     </section>
-    <TimelineList :items="items" :is-initial-loading="isInitialLoading" :is-loading-more="isLoadingMore"
-      :is-refreshing="isRefreshing" :is-empty="isEmpty" :has-more="hasMore" :initial-error="initialError"
-      :load-more-error="loadMoreError" @refresh="refresh" @retry-initial="retryInitial"
-      @retry-load-more="retryLoadMore">
+    <TimelineList
+      :items="items"
+      :is-initial-loading="isInitialLoading"
+      :is-loading-more="isLoadingMore"
+      :is-refreshing="isRefreshing"
+      :is-empty="isEmpty"
+      :has-more="hasMore"
+      :initial-error="initialError"
+      :load-more-error="loadMoreError"
+      @refresh="refresh"
+      @retry-initial="retryInitial"
+      @retry-load-more="retryLoadMore"
+    >
       <template #after-list>
         <div v-if="hasMore" ref="sentinelRef" aria-hidden="true" class="h-3" />
       </template>

@@ -2,7 +2,7 @@
 
 ## Goal
 
-提供最小可用的登入與登出流程，讓使用者可以進入受保護頁面（`/home`）並在需要時安全登出。
+提供最小可用的登入與登出流程，讓使用者可以進入受保護頁面（`/timelines`）並在需要時安全登出。
 
 此階段只支援「單一帳號」，優先驗證：
 
@@ -18,8 +18,8 @@
 ### In Scope
 
 - 單一帳號登入（不支援帳號切換）
-- 登入成功後可進入 `/home`
-- 未登入使用者不可進入 `/home`
+- 登入成功後可進入 `/timelines`
+- 未登入使用者不可進入 `/timelines`
 - 使用者可從已登入狀態登出
 - 登出後返回未登入入口（`/login`）
 - 基本 loading / error UI
@@ -47,11 +47,11 @@
 1. 使用者進入 `/login`
 2. 點擊登入按鈕並開始登入流程
 3. 登入中顯示 loading，避免重複提交
-4. 登入成功後寫入 session 狀態並導向 `/home`
+4. 登入成功後寫入 session 狀態並導向 `/timelines`
 5. 若登入失敗，顯示可理解的錯誤訊息與重試入口
-6. 已登入使用者在 `/home` 可觸發登出
+6. 已登入使用者在 `/timelines` 可觸發登出
 7. 系統清除 session 狀態後導向 `/login`
-8. 登出後若再訪問 `/home`，應被導向 `/login`
+8. 登出後若再訪問 `/timelines`，應被導向 `/login`
 
 ---
 
@@ -60,7 +60,7 @@
 ### Paths
 
 - `/login`：登入入口頁
-- `/home`：登入後主頁（受保護）
+- `/timelines`：登入後主頁（受保護）
 
 ### Route Responsibility
 
@@ -73,10 +73,10 @@
 
 ### Route Guard Rules
 
-- 未登入存取 `/home`（或任何受保護路由）→ 導向 `/login`
-- 已登入存取 `/login` → 導向 `/home`
+- 未登入存取 `/timelines`（或任何受保護路由）→ 導向 `/login`
+- 已登入存取 `/login` → 導向 `/timelines`
 - 登出完成後，任何受保護路由都應視為未登入
-- 根路由 `/` → 依登入狀態重導向（已登入 `/home`、未登入 `/login`），以 `replace: true` 取代歷史記錄
+- 根路由 `/` → 依登入狀態重導向（已登入 `/timelines`、未登入 `/login`），以 `replace: true` 取代歷史記錄
 - 不存在的路由 → 由 Nuxt error page（`app/error.vue`）顯示 404，**不導向 `/login`**
   - 403（未授權）與 404（不存在）行為完全分開，避免混淆
 
@@ -172,7 +172,7 @@ type AuthState = {
 3. 使用者前往 Mastodon 授權頁同意後，導回 `GET /auth/callback?code=...&state=...`。
 4. server 驗證 state 後，向 Mastodon token endpoint 交換 access token。
 5. server 呼叫 `GET /api/v1/accounts/verify_credentials` 取得帳號資訊。
-6. server 建立本地 session（httpOnly cookie），前端導向 `/home`。
+6. server 建立本地 session（httpOnly cookie），前端導向 `/timelines`。
 
 Mastodon 相關端點（參考）：
 
@@ -214,12 +214,12 @@ Mastodon 相關端點（參考）：
 
 ## Acceptance Criteria
 
-1. 未登入時進入 `/home`，會被導向 `/login`。
-2. 在 `/login` 執行登入成功後，會導向 `/home`。
+1. 未登入時進入 `/timelines`，會被導向 `/login`。
+2. 在 `/login` 執行登入成功後，會導向 `/timelines`。
 3. 登入失敗時有錯誤訊息，且可再次嘗試登入。
-4. 已登入狀態進入 `/login`，會被導向 `/home`。
-5. 在 `/home` 觸發登出後，會導向 `/login`。
-6. 登出後重新進入 `/home` 仍會被導向 `/login`。
+4. 已登入狀態進入 `/login`，會被導向 `/timelines`。
+5. 在 `/timelines` 觸發登出後，會導向 `/login`。
+6. 登出後重新進入 `/timelines` 仍會被導向 `/login`。
 7. 全流程僅支援單一帳號，無帳號切換 UI 與資料結構依賴。
 
 ---

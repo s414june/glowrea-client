@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import {
   Bookmark,
-  Building2,
-  Globe,
   Hash,
   Heart,
   List,
@@ -21,9 +19,6 @@ const props = defineProps<{
 const route = useRoute()
 const { isOpen, close } = useMoreMenu()
 const { isAuthenticated, logout: authLogout } = useAuth()
-
-const { localPath, ensureHostname } = useInstanceConfig()
-onMounted(() => { ensureHostname() })
 
 type MoreMenuLink = {
   type: 'link'
@@ -44,7 +39,7 @@ type MoreMenuAction = {
 async function logout(): Promise<void> {
   close()
   await authLogout()
-  await navigateTo('/home')
+  await navigateTo('/timelines')
 }
 
 const settingsItems: MoreMenuLink[] = [
@@ -54,14 +49,6 @@ const settingsItems: MoreMenuLink[] = [
 const mainItems = computed<MoreMenuLink[]>(() => [
   { type: 'link', key: 'likes', label: '喜歡', icon: Heart, to: '/likes' },
   { type: 'link', key: 'bookmarks', label: '書籤', icon: Bookmark, to: '/bookmarks' },
-  {
-    type: 'link',
-    key: 'local',
-    label: '本站',
-    icon: Building2,
-    to: localPath.value ?? '/local',
-  },
-  { type: 'link', key: 'federated', label: '聯邦', icon: Globe, to: '/federated' },
   { type: 'link', key: 'lists', label: '列表', icon: List, to: '/lists' },
   { type: 'link', key: 'tags', label: '標籤', icon: Hash, to: '/tags' },
 ])
@@ -71,10 +58,8 @@ const dangerItems: MoreMenuAction[] = [
 ]
 
 // 未登入：只保留不需驗證的項目
-const GUEST_MAIN_KEYS = ['local', 'federated']
-
 const visibleMainItems = computed(() =>
-  isAuthenticated.value ? mainItems.value : mainItems.value.filter(i => GUEST_MAIN_KEYS.includes(i.key)),
+  isAuthenticated.value ? mainItems.value : [],
 )
 
 const showDangerSection = computed(() => isAuthenticated.value)
@@ -126,7 +111,7 @@ onUnmounted(() => {
 
 // ── 定位與動畫 ────────────────────────────────────────────────────
 const positionClass = computed(() =>
-  props.placement === 'sidebar' ? 'bottom-0 left-full ml-2' : 'top-full right-0 mt-1',
+  props.placement === 'sidebar' ? 'top-0 left-full ml-2' : 'top-full right-0 mt-1',
 )
 
 const transitionOrigin = computed(() =>

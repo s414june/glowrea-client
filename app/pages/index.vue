@@ -3,7 +3,7 @@ const auth = useAuth()
 await auth.ensureSession()
 
 if (auth.isAuthenticated.value) {
-  await navigateTo('/home', { replace: true })
+  await navigateTo('/timelines', { replace: true })
 } else {
   await navigateTo('/login', { replace: true })
 }

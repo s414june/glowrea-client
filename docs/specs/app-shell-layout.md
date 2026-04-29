@@ -21,8 +21,6 @@
   - Logo（點擊刷新頁面）
   - 首頁
   - 通知
-  - 私訊
-  - 搜尋
   - 探索
   - 個人檔案
   - 更多
@@ -30,8 +28,8 @@
 - 支援 active route 樣式
 - 支援桌機版主要體驗（左欄固定）
 - 行動版採雙列導覽：
-  - 頂部列：左上角 Logo；右側為 通知、搜尋、更多
-  - 底部貼底功能列：首頁、私訊、發文（+ 圓形按鈕）、探索、個人檔案
+  - 頂部列：左上角 Logo；右側為 更多
+  - 底部貼底功能列：首頁、通知、發文（+ 圓形按鈕）、探索、個人檔案
 
 ### Out of Scope
 
@@ -50,7 +48,7 @@
 
 ## User Flow
 
-1. 使用者登入後進入 app 內容頁（例如 `/home`）
+1. 使用者登入後進入 app 內容頁（例如 `/timelines`）
 2. 頁面套用 app shell layout
 3. 左欄顯示品牌 Logo 與導覽清單
 4. 使用者點擊任一導覽項目可切換對應 route
@@ -61,10 +59,8 @@
 
 ## Route Map（初版）
 
-- 首頁 -> `/home`
+- 首頁 -> `/timelines`
 - 通知 -> `/notifications`
-- 私訊 -> `/messages`
-- 搜尋 -> `/search`
 - 探索 -> `/explore`
 - 個人檔案 -> `/profile`
 - 更多 -> 彈窗菜單（非路由，詳見 [more-popover-menu.md](more-popover-menu.md)）
@@ -72,6 +68,7 @@
 備註：
 
 - 若頁面尚未實作，可先導向對應 placeholder 頁面，顯示「Coming soon」。
+- 搜尋與私訊已從導覽移除（頁面保留但不在導覽列中顯示）。
 
 ---
 
@@ -88,21 +85,21 @@
 
 ## UI Requirements
 
-### Desktop（>= 1024px）
+### Desktop（>= 1280px）
 
 - 左欄固定（fixed）顯示於畫面左側
 - 左欄寬度建議 `240px~280px`
 - 中間主內容區需維持「相對整個視窗置中」，不可因左欄 fixed 而偏移
-- 桌機導覽項目需顯示 icon + 文字（例如：首頁、通知、私訊）
+- 桌機導覽項目需顯示 icon + 文字（例如：首頁、通知、探索）
 
-### Tablet / Mobile（< 1024px）
+### Tablet / Mobile（< 1280px）
 
 - 左欄不顯示，改為上下兩區導覽。
 - 頂部列（sticky top）：
   - 左側：Logo（點擊刷新當前頁）
-  - 右側：通知、搜尋、更多
+  - 右側：更多
 - 底部列（sticky bottom）：
-  - 首頁、私訊、發文（`+` 圓形 accent 按鈕）、探索、個人檔案
+  - 首頁、通知、發文（`+` 圓形 accent 按鈕）、探索、個人檔案
   - 每項需有 icon 與文字（或初版文字）；發文按鈕只顯示 icon，無文字 label
 - 頂部與底部導覽都需支援 active 樣式。
 - 主內容需預留底部安全空間（避免被底部列遮住）。
@@ -120,7 +117,7 @@
 ### Logo Interaction
 
 - 點擊 Logo 執行目前 route 刷新
-- 點擊 Logo 應導向 `/home` 並觸發 timeline refresh
+- 點擊 Logo 應導向 `/timelines` 並觸發 timeline refresh
 - 不使用整頁 hard reload（避免中斷目前 app 狀態）
 - 不可導致登入狀態遺失
 
@@ -141,7 +138,7 @@
 
 ```ts
 type NavItem = {
-  key: 'home' | 'notifications' | 'messages' | 'search' | 'explore' | 'profile' | 'more'
+  key: 'home' | 'notifications' | 'explore' | 'profile' | 'more'
   label: string
   to: string
   icon?: string
@@ -164,14 +161,15 @@ type NavItem = {
 
 ## Acceptance Criteria
 
-1. 登入後進入 `/home` 可看到左欄導覽。
-2. 左欄包含 Logo、首頁、通知、私訊、搜尋、探索、個人檔案、更多。
+1. 登入後進入 `/timelines` 可看到左欄導覽。
+2. 左欄包含 Logo、首頁、通知、探索、個人檔案、更多。
 3. 點擊 Logo 會刷新目前頁面。
 4. 點擊導覽項目會導向對應 route。
 5. 當前 route 對應項目有 active 樣式。
-6. 行動版顯示頂部列：左側 Logo、右側通知/搜尋/更多。
-7. 行動版顯示底部貼底功能列：首頁/私訊/發文（+）/探索/個人檔案。
+6. 行動版顯示頂部列：左側 Logo、右側更多。
+7. 行動版顯示底部貼底功能列：首頁/通知/發文（+）/探索/個人檔案。
 8. 行動版主內容不被底部功能列遮擋。
+9. 探索項目使用搜尋（放大鏡）圖示。
 
 ---
 

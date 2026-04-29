@@ -2,6 +2,7 @@
 import type { TimelineStatus } from '#shared/types/timeline'
 import { resolveCustomEmoji } from '~/utils/emoji'
 import StatusImageGallery from '~/components/status/StatusImageGallery.vue'
+import { Repeat2 } from 'lucide-vue-next'
 
 const props = defineProps<{
   status: TimelineStatus
@@ -70,8 +71,9 @@ function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
 <template>
   <article class="timeline-card cursor-pointer rounded-2xl p-4 transition-transform duration-200" role="button"
     tabindex="0" @click="openDetail($event)" @keydown.enter.prevent="openDetail($event)" @keydown.space.prevent="openDetail($event)">
-    <p v-if="boostedBy" class="mb-2 text-xs font-medium text-teal-700">
-      Boosted by {{ boostedBy }}
+    <p v-if="boostedBy" class="mb-2 flex items-center gap-1 text-xs font-medium text-teal-700">
+      <Repeat2 class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      {{ boostedBy }}
     </p>
 
     <div class="flex items-start gap-3">

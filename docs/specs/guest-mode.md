@@ -12,10 +12,10 @@
 
 ### In Scope
 
-- 訪客可存取的路由：`/home`、`/search`、`/explore`（以及 `更多` 選單中的 `/settings`、`/local`、`/federated`）
-- 訪客禁止存取的路由（仍導向 `/login`）：`/status/*`、`/notifications`、`/messages`、`/profile`、`/compose`、`/more`
-- 登出後導向 `/home`（不再導向 `/`）
-- `/home` 訪客狀態：以 `ComingSoon` 元件顯示「本站時間軸」佔位，不觸發 API 請求，不跳轉路由
+- 訪客可存取的路由：`/timelines`（含 `/timelines/:instance/local`、`/timelines/federated`）、`/search`、`/explore`
+- 訪客禁止存取的路由（仍導向 `/login`）：`/status/*`、`/notifications`、`/timelines/messages`、`/profile`、`/compose`、`/more`
+- 登出後導向 `/timelines`（不再導向 `/`）
+- `/timelines` parent layout 的頁籤列訪客可見：本站（有 `hasInstance`）、聯邦；追蹤、私訊 tab 不渲染
 - 導覽頁籤依登入狀態差異化，需驗證者不渲染至 DOM
 - `更多` 彈窗依登入狀態過濾選項，訪客可見：設定、本站、聯邦、登入；已登入可見：完整清單 + 登出
 - 行動版底部列：登入後 5 欄（home/messages/compose/explore/profile），訪客 3 欄（home/search/explore）
@@ -34,10 +34,12 @@
 | 路由 | 訪客 | 已登入 |
 |---|---|---|
 | `/` | 無規則（dead end） | 無規則 |
-| `/home` | ✅ 可存取（顯示佔位） | ✅ 顯示追蹤時間軸 |
+| `/timelines` | ✅ 可存取（顯示頁籤；本站/聯邦可切換） | ✅ 顯示追蹤時間軸 |
+| `/timelines/:instance/local` | ✅ 可存取 | ✅ 可存取 |
+| `/timelines/federated` | ✅ 可存取 | ✅ 可存取 |
 | `/search`、`/explore` | ✅ 可存取 | ✅ 可存取 |
-| `/login` | ✅ 可存取 | 導向 `/home` |
-| `/status/*`、`/notifications`、`/messages`、`/profile`、`/compose`、`/more` | 導向 `/login` | ✅ 可存取 |
+| `/login` | ✅ 可存取 | 導向 `/timelines` |
+| `/status/*`、`/notifications`、`/timelines/messages`、`/profile`、`/compose`、`/more` | 導向 `/login` | ✅ 可存取 |
 
 ---
 
@@ -86,33 +88,26 @@
 
 ---
 
-## `/home` 訪客行為
+## `/timelines` 訪客行為
 
-### 元件切換（不轉路由）
+`/timelines` 為 parent layout，頁籤列依登入狀態動態顯示：
 
-```
-isAuthenticated = true  → <TimelineList ...>（追蹤時間軸）
-isAuthenticated = false → <ComingSoon label="本站時間軸" />
-```
+- 訪客可見：本站（有 `hasInstance`）、聯邦
+- 僅登入可見：追蹤、私訊
 
-### `ComingSoon` 元件規格
-
-- 路徑：`app/components/common/ComingSoon.vue`
-- Props：`label?: string`（顯示於說明文字）
-- 顯示：🚧 icon + 「即將推出」標題 + 說明文字
-- 樣式：置中、留白足夠、純靜態，不觸發任何 API
+訪客進入 `/timelines`（index）時，顯示 `ComingSoon`（追蹤 tab 內容）。應引導至本站或聯邦 tab。
 
 ### 資料載入保護
 
-`home.vue` 的 `onMounted` 與 `signal` watch 在 `!isAuthenticated.value` 時直接 return，不呼叫 `loadInitial()`。
+`timelines/index.vue` 的 `onMounted` 在 `!isAuthenticated.value` 時直接 return，不呼叫 `loadInitial()`。
 
 ---
 
 ## 登出後導向
 
-登出完成後（無論成功或失敗 finally block）導向 `/home`，不再導向 `/`。
+登出完成後（無論成功或失敗 finally block）導向 `/timelines`，不再導向 `/`。
 
-訪客在 `/home` 看到佔位畫面，並可透過 `更多` 選單點擊「登入」進入 `/login`。
+訪客在 `/timelines` 看到佔位畫面，並可透過 `更多` 選單點擊「登入」進入 `/login`。
 
 ---
 
@@ -123,7 +118,8 @@ isAuthenticated = false → <ComingSoon label="本站時間軸" />
 | `app/composables/useAppNavigation.ts` | 改為 auth-aware，回傳 `ComputedRef<NavItem[]>` |
 | `app/layouts/default.vue` | 動態 `grid-cols`、條件顯示 FAB、`regularMobileTopItems` 用 `.value` |
 | `app/components/layout/AppSidebar.vue` | `regularDesktopItems` 用 `.value` |
-| `app/components/layout/MorePopoverMenu.vue` | 過濾 mainItems、切換登入/登出區塊、logout → `/home` |
-| `app/pages/home.vue` | 訪客顯示 `ComingSoon`，跳過資料載入 |
+| `app/components/layout/MorePopoverMenu.vue` | 過濾 mainItems、切換登入/登出區塊、logout → `/timelines` |
+| `app/pages/timelines.vue` | parent layout（頁籤列 + `<NuxtPage />`），訪客顯示本站/聯邦 tab |
+| `app/pages/timelines/index.vue` | 追蹤 tab，訪客顯示 `ComingSoon`，跳過資料載入 |
 | `app/components/common/ComingSoon.vue` | 新建，通用佔位元件 |
-| `app/middleware/auth.global.ts` | 移除 `/home` 保護 |
+| `app/middleware/auth.global.ts` | 保護 `/timelines/messages`（移除舊 `/timelines` 整體保護）|

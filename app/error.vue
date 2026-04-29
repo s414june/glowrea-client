@@ -13,7 +13,7 @@ function handleBack(): void {
   if (window.history.length > 1) {
     window.history.back()
   } else {
-    navigateTo('/home')
+    navigateTo('/timelines')
   }
 }
 </script>
@@ -40,7 +40,7 @@ function handleBack(): void {
         回上一頁
       </button>
       <NuxtLink
-        to="/home"
+        to="/timelines"
         class="rounded-full border border-stone-300 px-5 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
       >
         回首頁

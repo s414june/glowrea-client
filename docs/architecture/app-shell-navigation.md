@@ -60,8 +60,8 @@ App Shell 導覽採用 Lucide icon 系統，並以「單一映射來源」管理
 
 ## Refresh Interaction
 
-- Logo 點擊行為採「導向 `/home` + 觸發 timeline refresh signal」。
-- signal 由 `useHomeRefreshSignal` 管理，`/home` 進入時與停留中都可響應 refresh。
+- Logo 點擊行為採「導向 `/timelines` + 觸發 timeline refresh signal」。
+- signal 由 `useHomeRefreshSignal` 管理，`/timelines` 進入時與停留中都可響應 refresh。
 - 避免整頁 reload，降低被 middleware 判定為未登入而導回 `/login` 的機率。
 
 ---

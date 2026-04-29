@@ -79,7 +79,7 @@ watch(statusId, async (value, previousValue) => {
       <button
         class="rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-200"
         aria-label="返回"
-        @click="navigateTo('/home')">
+        @click="navigateTo('/timelines')">
         <ArrowLeft class="h-5 w-5" aria-hidden="true" />
       </button>
 

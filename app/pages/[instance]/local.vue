@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import LocalTimeline from '~/components/timeline/LocalTimeline.vue'
-
-// /:instance 參數目前僅用於 URL 語意，實際 API 固定指向 runtimeConfig.mastodonApiBase
+// 重導向至新的巢狀路由
 const instance = useRoute().params.instance as string
-useSeoMeta({ title: instance })
+await navigateTo(`/timelines/${instance}/local`, { replace: true })
 </script>
 
 <template>
-  <main>
-    <LocalTimeline />
-  </main>
+  <div />
 </template>

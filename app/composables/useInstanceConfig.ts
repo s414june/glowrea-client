@@ -18,13 +18,16 @@ export function useInstanceConfig() {
     }
   }
 
-  /** 計算本站時間軸的路徑（例如 /g0v.social/local） */
+  /** 計算本站時間軸的路徑（例如 /timelines/g0v.social/local） */
   const localPath = computed(() =>
-    hostname.value ? `/${hostname.value}/local` : null,
+    hostname.value ? `/timelines/${hostname.value}/local` : null,
   )
+
+  /** 聯邦時間軸路徑（固定為 /timelines/federated，不帶 instance） */
+  const federatedPath = '/timelines/federated'
 
   /** 是否有設定實例（有值即為 true） */
   const hasInstance = computed(() => Boolean(hostname.value))
 
-  return { hostname, localPath, hasInstance, ensureHostname }
+  return { hostname, localPath, federatedPath, hasInstance, ensureHostname }
 }

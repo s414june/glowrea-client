@@ -9,7 +9,7 @@ async function handleLogin(): Promise<void> {
   const success = await auth.login()
 
   if (success) {
-    await navigateTo('/home')
+    await navigateTo('/timelines')
   }
 }
 </script>

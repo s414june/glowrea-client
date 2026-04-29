@@ -369,7 +369,7 @@ type StatusDetailState = {
 
 ## 驗收條件（技術）
 
-1. 點擊 `/home` 任一貼文可導到 `/status/:id`。
+1. 點擊 `/timelines` 任一貼文可導到 `/status/:id`。
 2. `/api/timeline/status/:id` 未登入時回 `401`。
 3. 主貼文成功、context 失敗時，頁面仍可看到主貼文。
 4. `/status/:id` 無效 id 不會白頁，且有可理解錯誤訊息。

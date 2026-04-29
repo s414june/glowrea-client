@@ -22,7 +22,7 @@ function isActive(path: string): boolean {
 
 async function goHomeAndRefreshTimeline(): Promise<void> {
   triggerHomeRefresh()
-  await navigateTo('/home')
+  await navigateTo('/timelines')
 }
 
 function handleNavClick(item: NavItem): void {

@@ -1,9 +1,7 @@
 import type { Component } from 'vue'
 import {
   Bell,
-  Compass,
   House,
-  Mail,
   MoreHorizontal,
   Plus,
   Search,
@@ -13,9 +11,8 @@ import {
 export const navigationIcons: Record<string, Component> = {
   home: House,
   notifications: Bell,
-  messages: Mail,
   search: Search,
-  explore: Compass,
+  explore: Search,
   profile: UserCircle2,
   more: MoreHorizontal,
   compose: Plus,

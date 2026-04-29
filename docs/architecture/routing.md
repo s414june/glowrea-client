@@ -6,7 +6,7 @@ See also: `docs/architecture/app-shell-navigation.md` for app shell navigation a
 
 - Role: 重導向入口，不直接渲染任何內容。
 - 行為：`ensureSession()` 後根據登入狀態以 `replace: true` 導向：
-  - 已登入 → `/home`
+  - 已登入 → `/timelines`
   - 未登入 → `/login`
 - 使用 `replace: true` 避免在瀏覽記錄中留下根路由，防止返回後再次白頁。
 
@@ -14,21 +14,25 @@ See also: `docs/architecture/app-shell-navigation.md` for app shell navigation a
 
 下列路由前綴需登入，未登入時由 `auth.global.ts` middleware 統一導向 `/login`：
 
-- `/home`
+- `/timelines/messages`
 - `/explore`
-- `/search`
 - `/status`
 - `/notifications`
-- `/messages`
 - `/profile`
 - `/more`
 - `/compose`
 
-## `/home`
+> `/timelines`（追蹤、本站、聯邦）訪客可存取。`/timelines/messages` 為唯一受保護的 timelines 子路由。
 
-- Role: home timeline page entry after login.
-- Owns: page-level layout, invoking timeline feature composable, wiring retry/refresh/load more actions.
-- Does not own: Mastodon response transformation, dedupe policy, token persistence, OAuth flow.
+## `/timelines`（Parent Layout）
+
+- Role: tabs layout + child page 容器。
+- 包含頁籤列（追蹤／私訊／本站／聯邦）與 `<NuxtPage />`，不 sticky。
+- Child routes：
+  - `/timelines`（index）→ 追蹤時間軸，需登入
+  - `/timelines/messages` → 私訊，需登入
+  - `/timelines/:instance/local` → 本站時間軸，無需登入
+  - `/timelines/federated` → 聯邦時間軸（ComingSoon），無需登入
 
 ## `/profile`
 
@@ -60,5 +64,5 @@ Nuxt 錯誤邊界頁面，負責處理所有未被路由捕捉的錯誤。
 ### UI 行為
 
 - 顯示狀態碼（大字）與對應說明文字。
-- 提供「回上一頁」（`history.back()`，fallback 為 `/home`）與「回首頁」連結。
+- 提供「回上一頁」（`history.back()`，fallback 為 `/timelines`）與「回首頁」連結。
 - 不套用 `default.vue` layout（error page 獨立全頁顯示）。

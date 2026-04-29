@@ -5,12 +5,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
   await auth.ensureSession()
 
   const protectedPrefixes = [
-    '/home',
+    '/timelines/messages',
     '/explore',
-    '/search',
     '/status',
     '/notifications',
-    '/messages',
     '/profile',
     '/more',
     '/compose',
@@ -25,6 +23,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (to.path === '/login' && auth.isAuthenticated.value) {
-    return navigateTo('/home')
+    return navigateTo('/timelines')
   }
 })

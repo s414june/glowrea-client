@@ -49,7 +49,7 @@
 
 ## User Flow
 
-1. 使用者登入成功後進入 `/home`
+1. 使用者登入成功後進入 `/timelines`
 2. 頁面先顯示 loading state
 3. API 成功回傳後，顯示 timeline 列表
 4. 如果列表為空，顯示 empty state
@@ -63,7 +63,7 @@
 
 ### Path
 
-- `/home`
+- `/timelines`
 
 ### Route Responsibility
 
@@ -84,12 +84,34 @@
 
 頁面需包含：
 
-- 頁面標題或明確的首頁識別
+- 頁面最上方頁籤列（見下方）
 - timeline list 容器
 - loading state
 - empty state
 - error state
 - retry 操作入口
+
+### 首頁頁籤
+
+首頁頂部顯示可左右滾動的頁籤列，切換不同時間軸視圖。
+
+| 頁籤 | 路徑 | 可見條件 |
+|------|------|----------|
+| 追蹤 | `/timelines` | 僅登入 |
+| 私訊 | `/timelines/messages` | 僅登入 |
+| 本站 | `/timelines/{hostname}/local` | 登入與未登入（需 `hasInstance`） |
+| 聯邦 | `/timelines/federated` | 登入與未登入 |
+
+- 頁籤列**不 sticky**，隨頁面自由滑動。
+- 頁籤列可橫向滾動（`overflow-x-auto scrollbar-none`），防止小螢幕折行。
+- active 頁籤使用 `--nav-accent` 底線與文字色；追蹤、私訊僅登入後渲染。
+- `本站` tab 僅在 `hasInstance === true` 時顯示；`聯邦` tab 永遠顯示。
+- 頁籤內容尚未實作時，導向 `ComingSoon` 元件或展示暗示。
+- `/timelines` 為 parent layout（`timelines.vue`），tabs 與 `<NuxtPage />` 組成，各 tab 為獨立子頁面：
+  - `timelines/index.vue`（追蹤）
+  - `timelines/messages.vue`（私訊）
+  - `timelines/[instance]/local.vue`（本站）
+  - `timelines/federated.vue`（聯邦）
 
 ### Status Item
 
