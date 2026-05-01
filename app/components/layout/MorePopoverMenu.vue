@@ -3,10 +3,10 @@ import {
   Bookmark,
   Hash,
   Heart,
-  List,
   LogIn,
   LogOut,
   Settings,
+  Users
 } from 'lucide-vue-next'
 import type { Component } from 'vue'
 import { useAuth } from '~/composables/useAuth'
@@ -19,6 +19,7 @@ const props = defineProps<{
 const route = useRoute()
 const { isOpen, close } = useMoreMenu()
 const { isAuthenticated, logout: authLogout } = useAuth()
+const { hasInstance, localPath } = useInstanceConfig()
 
 type MoreMenuLink = {
   type: 'link'
@@ -39,7 +40,8 @@ type MoreMenuAction = {
 async function logout(): Promise<void> {
   close()
   await authLogout()
-  await navigateTo('/timelines')
+  const dest = hasInstance.value && localPath.value ? localPath.value : '/timelines/federated'
+  await navigateTo(dest)
 }
 
 const settingsItems: MoreMenuLink[] = [
@@ -49,7 +51,7 @@ const settingsItems: MoreMenuLink[] = [
 const mainItems = computed<MoreMenuLink[]>(() => [
   { type: 'link', key: 'likes', label: '喜歡', icon: Heart, to: '/likes' },
   { type: 'link', key: 'bookmarks', label: '書籤', icon: Bookmark, to: '/bookmarks' },
-  { type: 'link', key: 'lists', label: '列表', icon: List, to: '/lists' },
+  { type: 'link', key: 'lists', label: '群組', icon: Users, to: '/lists' },
   { type: 'link', key: 'tags', label: '標籤', icon: Hash, to: '/tags' },
 ])
 
@@ -120,96 +122,53 @@ const transitionOrigin = computed(() =>
 </script>
 
 <template>
-  <Transition
-    enter-from-class="opacity-0 scale-95"
-    :enter-active-class="`transition duration-150 ease-out ${transitionOrigin}`"
-    enter-to-class="opacity-100 scale-100"
-    leave-from-class="opacity-100 scale-100"
-    :leave-active-class="`transition duration-100 ease-in ${transitionOrigin}`"
-    leave-to-class="opacity-0 scale-95"
-  >
-    <div
-      v-if="isOpen"
-      ref="menuRef"
-      :class="[
-        'absolute z-50 w-52 rounded-2xl border border-stone-200 bg-[#faf7f2] py-2 shadow-lg',
-        positionClass,
-      ]"
-      role="menu"
-      aria-label="更多選項"
-    >
+  <Transition enter-from-class="opacity-0 scale-95"
+    :enter-active-class="`transition duration-150 ease-out ${transitionOrigin}`" enter-to-class="opacity-100 scale-100"
+    leave-from-class="opacity-100 scale-100" :leave-active-class="`transition duration-100 ease-in ${transitionOrigin}`"
+    leave-to-class="opacity-0 scale-95">
+    <div v-if="isOpen" ref="menuRef" :class="[
+      'absolute z-50 w-52 rounded-2xl border border-stone-200 bg-[#faf7f2] py-1 shadow-lg',
+      positionClass,
+    ]" role="menu" aria-label="更多選項">
       <!-- 設定，有分隔線 -->
-      <div class="mb-1 border-b border-stone-200 pb-1">
-        <NuxtLink
-          v-for="item in settingsItems"
-          :key="item.key"
-          :to="item.to"
-          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
-          :class="
-            isItemActive(item)
-              ? 'nav-active'
-              : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'
-          "
-          role="menuitem"
-          @click="close()"
-        >
-          <component
-            :is="item.icon"
-            class="h-4 w-4 shrink-0"
-            aria-hidden="true"
-          />
+      <div class="mb-1 border-stone-200">
+        <NuxtLink v-for="item in settingsItems" :key="item.key" :to="item.to"
+          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors" :class="isItemActive(item)
+            ? 'nav-active'
+            : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'
+            " role="menuitem" @click="close()">
+          <component :is="item.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{{ item.label }}</span>
         </NuxtLink>
       </div>
 
       <!-- 一般路由項目 -->
-      <NuxtLink
-        v-for="item in visibleMainItems"
-        :key="item.key"
-        :to="item.to"
-        class="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors"
-        :class="
-          isItemActive(item)
+      <div v-show="visibleMainItems.length > 0" class="border-t border-stone-200 py-1">
+        <NuxtLink v-for="item in visibleMainItems" :key="item.key" :to="item.to"
+          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors" :class="isItemActive(item)
             ? 'nav-active'
             : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'
-        "
-        role="menuitem"
-        @click="close()"
-      >
-        <component
-          :is="item.icon"
-          class="h-4 w-4 shrink-0"
-          aria-hidden="true"
-        />
-        <span>{{ item.label }}</span>
-      </NuxtLink>
+            " role="menuitem" @click="close()">
+          <component :is="item.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>{{ item.label }}</span>
+        </NuxtLink>
+      </div>
 
       <!-- 已登入：危險操作（登出） -->
-      <div v-if="showDangerSection" class="mt-1 border-t border-stone-200 pt-1">
-        <button
-          v-for="item in dangerItems"
-          :key="item.key"
+      <div v-if="showDangerSection" class="pt-1 border-t border-stone-200">
+        <button v-for="item in dangerItems" :key="item.key"
           class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-stone-200"
-          role="menuitem"
-          @click="item.action()"
-        >
-          <component
-            :is="item.icon"
-            class="h-4 w-4 shrink-0"
-            aria-hidden="true"
-          />
+          role="menuitem" @click="item.action()">
+          <component :is="item.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{{ item.label }}</span>
         </button>
       </div>
 
       <!-- 未登入：登入入口 -->
-      <div v-if="showLoginSection" class="mt-1 border-t border-stone-200 pt-1">
-        <NuxtLink
-          to="/login"
+      <div v-if="showLoginSection" class="pt-1 border-t border-stone-200">
+        <NuxtLink to="/login"
           class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--nav-accent)] transition-colors hover:bg-stone-200"
-          role="menuitem"
-          @click="close()"
-        >
+          role="menuitem" @click="close()">
           <LogIn class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>登入</span>
         </NuxtLink>

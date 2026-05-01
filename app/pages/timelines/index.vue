@@ -2,11 +2,16 @@
 import { useAuth } from '~/composables/useAuth'
 import { useHomeRefreshSignal } from '~/composables/useHomeRefreshSignal'
 
-useSeoMeta({ title: '首頁' })
+useSeoMeta({ title: '追蹤' })
 
 const auth = useAuth()
 const route = useRoute()
+const { hasInstance, localPath } = useInstanceConfig()
 const { signal } = useHomeRefreshSignal()
+
+function guestRedirectDest(): string {
+  return hasInstance.value && localPath.value ? localPath.value : '/timelines/federated'
+}
 const lastAppliedRefreshSignal = ref(0)
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
@@ -31,7 +36,10 @@ function retryLoadMore(): Promise<void> {
 }
 
 onMounted(async () => {
-  if (!auth.isAuthenticated.value) return // 未登入：不載入時間軸
+  if (!auth.isAuthenticated.value) {
+    await navigateTo(guestRedirectDest(), { replace: true })
+    return
+  }
 
   if (signal.value > 0 && signal.value !== lastAppliedRefreshSignal.value) {
     lastAppliedRefreshSignal.value = signal.value
@@ -106,10 +114,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <!-- 未登入：顯示佔位 -->
-  <ComingSoon v-if="!auth.isAuthenticated.value" label="追蹤時間軸" />
-
-  <main v-else>
+  <!-- 已登入 → 追蹤時間軸 -->
+  <main>
     <section v-if="auth.errorMessage.value" class="mx-auto w-full max-w-2xl px-4 pt-4">
       <p class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
         {{ auth.errorMessage.value }}
