@@ -16,6 +16,16 @@ export type HashtagItem = {
   history: { day: string; uses: string; accounts: string }[]
 }
 
+export type TrendingLink = {
+  url: string
+  title: string
+  description: string
+  image: string | null
+  authorName: string | null
+  providerName: string | null
+  history: { day: string; uses: string; accounts: string }[]
+}
+
 export type SearchResponse = {
   accounts: AccountSummary[]
   statuses: TimelineStatus[]

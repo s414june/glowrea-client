@@ -13,6 +13,7 @@ defineProps<{
   hasMore: boolean
   initialError: string | null
   loadMoreError: string | null
+  emptyMessage?: string
 }>()
 
 defineEmits<{
@@ -38,8 +39,8 @@ defineEmits<{
     </div>
 
     <div v-else-if="isEmpty" class="timeline-card rounded-2xl p-8 text-center">
-      <p class="text-sm text-stone-600">
-        目前沒有任何貼文，稍後再回來看看。
+      <p class="text-sm" :style="{ color: 'var(--text-subtle)' }">
+        {{ emptyMessage ?? '目前沒有任何貼文，稍後再回來看看。' }}
       </p>
     </div>
 

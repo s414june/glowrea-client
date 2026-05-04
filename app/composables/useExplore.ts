@@ -1,8 +1,9 @@
-import type { SearchResponse, HashtagItem } from '#shared/types/search'
+import type { SearchResponse, HashtagItem, AccountSummary, TrendingLink } from '#shared/types/search'
+import type { TimelineStatus } from '#shared/types/timeline'
 import { fetchSearch } from '~/utils/api/search'
-import { fetchTrendingTags } from '~/utils/api/trends'
+import { fetchTrendingTags, fetchTrendingStatuses, fetchTrendingAccounts, fetchTrendingLinks } from '~/utils/api/trends'
 
-type ExploreTab = 'statuses' | 'accounts' | 'hashtags'
+type ExploreTab = 'statuses' | 'accounts' | 'hashtags' | 'links'
 
 type ExploreState = {
   query: Ref<string>
@@ -11,10 +12,13 @@ type ExploreState = {
   isSearching: Ref<boolean>
   searchError: Ref<string | null>
   trendingTags: Ref<HashtagItem[]>
+  trendingStatuses: Ref<TimelineStatus[]>
+  trendingAccounts: Ref<AccountSummary[]>
+  trendingLinks: Ref<TrendingLink[]>
   isTrendsLoading: Ref<boolean>
   hasQuery: ComputedRef<boolean>
   search: () => void
-  loadTrendingTags: () => Promise<void>
+  loadTrending: () => Promise<void>
 }
 
 function normalizeError(error: unknown): string {
@@ -32,6 +36,9 @@ export function useExplore(): ExploreState {
   const isSearching = ref(false)
   const searchError = ref<string | null>(null)
   const trendingTags = ref<HashtagItem[]>([])
+  const trendingStatuses = ref<TimelineStatus[]>([])
+  const trendingAccounts = ref<AccountSummary[]>([])
+  const trendingLinks = ref<TrendingLink[]>([])
   const isTrendsLoading = ref(false)
 
   const hasQuery = computed(() => query.value.trim().length > 0)
@@ -51,7 +58,6 @@ export function useExplore(): ExploreState {
     }
   }
 
-  // Immediate search (e.g. on Enter key)
   function search(): void {
     const q = query.value.trim()
     if (!q) {
@@ -74,21 +80,29 @@ export function useExplore(): ExploreState {
       return
     }
 
+    // 搜尋狀態下 links tab 不存在，切回 statuses
+    if (activeTab.value === 'links') {
+      activeTab.value = 'statuses'
+    }
+
     debounceTimer = setTimeout(() => {
       void performSearch(newVal.trim())
     }, 300)
   })
 
-  async function loadTrendingTags(): Promise<void> {
+  async function loadTrending(): Promise<void> {
     isTrendsLoading.value = true
-    try {
-      trendingTags.value = await fetchTrendingTags()
-    } catch {
-      // silently fail — spec says 趨勢 API 失敗靜默略過
-      trendingTags.value = []
-    } finally {
-      isTrendsLoading.value = false
-    }
+    const [tags, statuses, accounts, links] = await Promise.allSettled([
+      fetchTrendingTags(),
+      fetchTrendingStatuses(),
+      fetchTrendingAccounts(),
+      fetchTrendingLinks(),
+    ])
+    trendingTags.value = tags.status === 'fulfilled' ? tags.value : []
+    trendingStatuses.value = statuses.status === 'fulfilled' ? statuses.value : []
+    trendingAccounts.value = accounts.status === 'fulfilled' ? accounts.value : []
+    trendingLinks.value = links.status === 'fulfilled' ? links.value : []
+    isTrendsLoading.value = false
   }
 
   onUnmounted(() => {
@@ -102,9 +116,12 @@ export function useExplore(): ExploreState {
     isSearching,
     searchError,
     trendingTags,
+    trendingStatuses,
+    trendingAccounts,
+    trendingLinks,
     isTrendsLoading,
     hasQuery,
     search,
-    loadTrendingTags,
+    loadTrending,
   }
 }

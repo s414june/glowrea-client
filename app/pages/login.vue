@@ -17,7 +17,7 @@ async function handleLogin(): Promise<void> {
 <template>
   <main class="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4 py-8 sm:px-8">
     <section class="timeline-card w-full rounded-3xl p-8 sm:p-12">
-      <p class="text-xs font-semibold uppercase tracking-[0.22em] text-teal-700">
+      <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
         Glowrea Access
       </p>
       <h1 class="headline-font mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">

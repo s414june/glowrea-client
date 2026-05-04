@@ -13,11 +13,16 @@ export default defineNuxtRouteMiddleware(async (to) => {
     '/compose',
     '/settings',
     '/likes',
+    '/bookmarks',
+    '/lists',
   ]
 
-  const isProtected = protectedPrefixes.some((prefix) => {
-    return to.path === prefix || to.path.startsWith(`${prefix}/`)
-  })
+  // exact-only 保護：路徑完全相符才保護，子路由（如 /tags/:name）保持公開
+  const protectedExact = ['/tags']
+
+  const isProtected =
+    protectedPrefixes.some((prefix) => to.path === prefix || to.path.startsWith(`${prefix}/`)) ||
+    protectedExact.includes(to.path)
 
   if (isProtected && !auth.isAuthenticated.value) {
     return navigateTo('/login')

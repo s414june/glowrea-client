@@ -146,11 +146,12 @@ function replyToHandle(status: TimelineStatus): string | null {
         <ProfileHeader :profile="profile" />
       </div>
 
-      <!-- Tab nav — sticky below mobile header, sticky top-0 on desktop -->
+      <!-- Tab nav — fixed on mobile (follows header), sticky on desktop -->
       <div
-        class="sticky top-16 z-[19] -mx-4 border-b border-[var(--surface-line)] nav-bg-blur backdrop-blur xl:top-0"
+        class="fixed inset-x-0 top-0 z-[19] border-b border-[var(--surface-line)] nav-bg-blur backdrop-blur transition-transform duration-300 ease-in-out xl:sticky xl:inset-x-auto xl:translate-y-0 xl:z-10"
+        :class="headerVisible ? 'translate-y-16' : '-translate-y-full'"
       >
-        <div class="overflow-x-auto scrollbar-none">
+        <div class="mx-auto w-full max-w-2xl overflow-x-auto scrollbar-none px-4">
           <nav class="flex min-w-max" role="tablist" aria-label="個人檔案頁籤">
             <button
               v-for="tab in tabs"
@@ -166,6 +167,8 @@ function replyToHandle(status: TimelineStatus): string | null {
           </nav>
         </div>
       </div>
+      <!-- spacer for fixed tab nav on mobile -->
+      <div class="h-12 xl:hidden" />
 
       <!-- Tab content -->
       <div class="mt-4">

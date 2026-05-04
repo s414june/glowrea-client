@@ -26,14 +26,13 @@ const imageAttachments = computed(() => {
 
 const visibleImages = computed(() => imageAttachments.value.slice(0, props.maxVisible))
 const hiddenCount = computed(() => Math.max(0, imageAttachments.value.length - props.maxVisible))
-const maxCoverRatio = 16 / 9
-const minCoverRatio = 9 / 16
+const maxCoverRatio = 20 / 9
+const minCoverRatio = 9 / 20
 const resolvedGridClass = computed(() => {
-  if (visibleImages.value.length === 1) {
-    return 'mt-4 grid grid-cols-1 gap-3'
-  }
-
-  return props.gridClass
+  const base = visibleImages.value.length === 1
+    ? 'mt-4 grid grid-cols-1 gap-3'
+    : props.gridClass
+  return base.includes('items-') ? base : `${base} items-center`
 })
 
 const failedImageIds = ref<string[]>([])
@@ -108,6 +107,8 @@ function onImageLoad(id: string, media: StatusImageAttachment, event: Event): vo
 function imageMaskStyle(id: string): Record<string, string> {
   const dir = imageOverflowDirs.value[id]
   if (!dir) return {}
+  const fitMode = imageFitModes.value[id] || 'cover'
+  if (fitMode === 'full') return {}
 
   const gradient = dir === 'horizontal'
     ? 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)'
@@ -122,10 +123,30 @@ function imageMaskStyle(id: string): Record<string, string> {
 function imageDisplayClass(id: string): string {
   const fitMode = imageFitModes.value[id] || 'cover'
   if (fitMode === 'full') {
-    return `${baseImageClass.value} !h-auto object-contain`
+    return 'block w-auto max-w-full !h-auto'
   }
 
   return `${baseImageClass.value} object-cover`
+}
+
+function wrapperClass(id: string): string {
+  const fitMode = imageFitModes.value[id] || 'cover'
+  const base = 'relative overflow-hidden rounded-xl border border-stone-200 cursor-pointer'
+  // full mode: shrink-wrap the image and center in cell
+  if (fitMode === 'full') return `${base} w-fit mx-auto`
+  // cover mode: fill the grid cell normally
+  return base
+}
+
+function imageStyle(id: string): Record<string, string> {
+  const dir = imageOverflowDirs.value[id]
+  const fullMaxHeightPx = 450
+  const fullMaxWidthPx = fullMaxHeightPx * maxCoverRatio
+  const mask = imageMaskStyle(id)
+  const fitMode = imageFitModes.value[id] || 'cover'
+  if (fitMode === 'full' && dir === 'horizontal') return { ...mask, maxHeight: `${fullMaxHeightPx}px` }
+  if (fitMode === 'full' && dir === 'vertical') return { ...mask, maxWidth: `${fullMaxWidthPx}px` }
+  return mask
 }
 
 // ── 燈箱 ─────────────────────────────────────────────────────────
@@ -154,43 +175,23 @@ watch(imageAttachments, () => {
 
 <template>
   <div v-if="visibleImages.length" :class="resolvedGridClass">
-    <div
-      v-for="(media, index) in visibleImages"
-      :key="media.id"
-      class="relative overflow-hidden rounded-xl border border-stone-200 bg-stone-100 cursor-pointer"
-      @click="openLightbox(index)"
-    >
-      <img
-        v-if="!isFailed(media.id)"
-        :src="media.previewUrl || media.url"
-        :alt="media.description || '貼文圖片'"
-        :class="imageDisplayClass(media.id)"
-        :style="imageMaskStyle(media.id)"
-        loading="lazy"
-        @load="onImageLoad(media.id, media, $event)"
-        @error="onImageError(media.id)"
-      >
+    <div v-for="(media, index) in visibleImages" :key="media.id" :class="wrapperClass(media.id)"
+      @click="openLightbox(index)">
+      <img v-if="!isFailed(media.id)" :src="media.previewUrl || media.url" :alt="media.description || '貼文圖片'"
+        :class="imageDisplayClass(media.id)" :style="imageStyle(media.id)" loading="lazy"
+        @load="onImageLoad(media.id, media, $event)" @error="onImageError(media.id)">
 
-      <div
-        v-else
-        class="flex h-45 items-center justify-center px-4 text-xs text-stone-500"
-      >
+      <div v-else class="flex h-45 items-center justify-center px-4 text-xs text-stone-500">
         圖片載入失敗
       </div>
 
-      <span
-        v-if="index === visibleImages.length - 1 && hiddenCount > 0"
-        class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white"
-      >
+      <span v-if="index === visibleImages.length - 1 && hiddenCount > 0"
+        class="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white">
         +{{ hiddenCount }}
       </span>
     </div>
   </div>
 
-  <ImageLightbox
-    v-if="lightboxOpen"
-    :images="lightboxImages"
-    :initial-index="lightboxIndex"
-    @close="lightboxOpen = false"
-  />
+  <ImageLightbox v-if="lightboxOpen" :images="lightboxImages" :initial-index="lightboxIndex"
+    @close="lightboxOpen = false" />
 </template>

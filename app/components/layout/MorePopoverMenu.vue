@@ -127,7 +127,7 @@ const transitionOrigin = computed(() =>
     leave-from-class="opacity-100 scale-100" :leave-active-class="`transition duration-100 ease-in ${transitionOrigin}`"
     leave-to-class="opacity-0 scale-95">
     <div v-if="isOpen" ref="menuRef" :class="[
-      'absolute z-50 w-52 rounded-2xl border border-[var(--surface-line)] nav-bg py-1 shadow-lg',
+      'absolute z-50 w-52 overflow-hidden rounded-2xl border border-[var(--surface-line)] nav-bg py-1 shadow-lg',
       positionClass,
     ]" role="menu" aria-label="更多選項">
       <!-- 設定，有分隔線 -->
