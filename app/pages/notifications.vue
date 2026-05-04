@@ -70,10 +70,6 @@ function stripHtml(html: string): string {
 
 <template>
   <main class="mx-auto w-full max-w-2xl px-2 py-4">
-    <div class="px-2 pb-2">
-      <h1 class="headline-font text-xl font-semibold text-[var(--text-main)]">通知</h1>
-    </div>
-
     <!-- Loading -->
     <LoadingSkeleton v-if="isInitialLoading" />
 

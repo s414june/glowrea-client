@@ -24,9 +24,10 @@ export default defineEventHandler(async (event): Promise<TimelinePageResponse> =
   endpoint.searchParams.set('limit', '20')
 
   const maxId = typeof query.maxId === 'string' ? query.maxId : undefined
-  if (maxId) {
-    endpoint.searchParams.set('max_id', maxId)
-  }
+  if (maxId) endpoint.searchParams.set('max_id', maxId)
+
+  if (query.excludeReplies === 'true') endpoint.searchParams.set('exclude_replies', 'true')
+  if (query.onlyMedia === 'true') endpoint.searchParams.set('only_media', 'true')
 
   const response = await fetch(endpoint.toString(), {
     headers: { Authorization: `Bearer ${accessToken}` },

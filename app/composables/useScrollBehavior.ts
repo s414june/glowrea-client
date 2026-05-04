@@ -7,7 +7,7 @@
  *                  (used to show the jump-to-top FAB)
  */
 export function useScrollBehavior() {
-  const headerVisible = ref(true)
+  const headerVisible = useState<boolean>('header-visible', () => true)
   const showScrollTop = ref(false)
 
   const JITTER_THRESHOLD = 6    // px — ignore tiny scroll noise

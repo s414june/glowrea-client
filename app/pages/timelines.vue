@@ -3,6 +3,8 @@ import { useAuth } from '~/composables/useAuth'
 
 defineOptions({ name: 'TimelinesPage' })
 
+const headerVisible = useState<boolean>('header-visible', () => true)
+
 const auth = useAuth()
 const route = useRoute()
 const { hostname, hasInstance, localPath, federatedPath } = useInstanceConfig()
@@ -19,7 +21,10 @@ hostname.value = data.hostname
     登入後顯示完整頁籤；未登入僅顯示社群。
     不 sticky，隨頁面自由滑動。
   -->
-  <div class="border-b border-stone-200">
+  <div
+    class="fixed inset-x-0 top-0 z-[19] border-b border-stone-200 bg-[#faf7f2]/95 backdrop-blur transition-transform duration-300 ease-in-out xl:sticky xl:inset-x-auto xl:translate-y-0 xl:z-10"
+    :class="headerVisible ? 'translate-y-16' : '-translate-y-full'"
+  >
     <div class="mx-auto w-full max-w-2xl overflow-x-auto scrollbar-none">
       <nav class="flex min-w-max" role="tablist" aria-label="首頁頁籤">
         <template v-if="auth.isAuthenticated.value">
@@ -33,6 +38,9 @@ hostname.value = data.hostname
       </nav>
     </div>
   </div>
+
+  <!-- 補足 fixed tab nav 推走的空間（僅手機） -->
+  <div class="h-12 xl:hidden" />
 
   <NuxtPage :keepalive="true" />
 </template>
