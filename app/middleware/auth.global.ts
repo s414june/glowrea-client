@@ -6,12 +6,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const protectedPrefixes = [
     '/timelines/messages',
-    '/explore',
     '/status',
     '/notifications',
     '/profile',
     '/more',
     '/compose',
+    '/settings',
+    '/likes',
   ]
 
   const isProtected = protectedPrefixes.some((prefix) => {

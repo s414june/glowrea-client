@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useAuth } from '~/composables/useAuth'
 
+defineOptions({ name: 'TimelinesPage' })
+
 const auth = useAuth()
 const route = useRoute()
 const { hostname, hasInstance, localPath, federatedPath } = useInstanceConfig()
@@ -32,5 +34,5 @@ hostname.value = data.hostname
     </div>
   </div>
 
-  <NuxtPage />
+  <NuxtPage :keepalive="true" />
 </template>
