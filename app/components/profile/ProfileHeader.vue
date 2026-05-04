@@ -9,14 +9,14 @@ defineProps<{
 <template>
   <div class="timeline-card overflow-hidden rounded-2xl">
     <!-- 封面 -->
-    <div class="h-36 w-full overflow-hidden bg-stone-100 sm:h-44">
+    <div class="h-36 w-full overflow-hidden bg-[var(--surface-line)] sm:h-44">
       <img
         v-if="profile.header && !profile.header.endsWith('/headers/original/missing.png')"
         :src="profile.header"
         :alt="`${profile.displayName || profile.username} 的封面`"
         class="h-full w-full object-cover"
       >
-      <div v-else class="h-full w-full bg-gradient-to-br from-stone-100 to-stone-200" />
+      <div v-else class="h-full w-full bg-gradient-to-br from-[var(--surface-line)] to-[var(--surface-bg)]" />
     </div>
 
     <!-- 頭像 + 資訊 -->
@@ -25,14 +25,14 @@ defineProps<{
         <img
           :src="profile.avatar"
           :alt="profile.displayName || profile.username"
-          class="h-16 w-16 rounded-full border-4 border-[#fffdf9] object-cover sm:h-20 sm:w-20"
+          class="h-16 w-16 rounded-full border-4 border-[var(--surface-card)] object-cover sm:h-20 sm:w-20"
         >
       </div>
 
-      <p class="text-lg font-semibold leading-tight text-stone-900">
+      <p class="text-lg font-semibold leading-tight text-[var(--text-main)]">
         {{ profile.displayName || profile.username }}
       </p>
-      <p class="mt-0.5 text-sm text-stone-500">
+      <p class="mt-0.5 text-sm text-[var(--text-subtle)]">
         @{{ profile.acct }}
       </p>
 
@@ -43,17 +43,17 @@ defineProps<{
       />
 
       <div class="mt-4 flex gap-5 text-sm">
-        <span class="text-stone-700">
+        <span class="text-[var(--text-main)]">
           <span class="font-semibold">{{ profile.statusesCount.toLocaleString() }}</span>
-          <span class="ml-1 text-stone-500">貼文</span>
+          <span class="ml-1 text-[var(--text-subtle)]">貼文</span>
         </span>
-        <span class="text-stone-700">
+        <span class="text-[var(--text-main)]">
           <span class="font-semibold">{{ profile.followingCount.toLocaleString() }}</span>
-          <span class="ml-1 text-stone-500">追蹤中</span>
+          <span class="ml-1 text-[var(--text-subtle)]">追蹤中</span>
         </span>
-        <span class="text-stone-700">
+        <span class="text-[var(--text-main)]">
           <span class="font-semibold">{{ profile.followersCount.toLocaleString() }}</span>
-          <span class="ml-1 text-stone-500">追蹤者</span>
+          <span class="ml-1 text-[var(--text-subtle)]">追蹤者</span>
         </span>
       </div>
     </div>

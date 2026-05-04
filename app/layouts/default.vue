@@ -57,7 +57,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
     <div class="min-h-screen">
       <!-- 手機版 header：fixed + 滾動方向動畫 -->
       <header
-        class="fixed inset-x-0 top-0 z-20 border-b border-stone-200 bg-[#faf7f2]/95 px-4 py-3 backdrop-blur transition-transform duration-300 ease-in-out xl:hidden"
+        class="fixed inset-x-0 top-0 z-20 border-b border-[var(--surface-line)] nav-bg-blur px-4 py-3 backdrop-blur transition-transform duration-300 ease-in-out xl:hidden"
         :class="headerVisible ? 'translate-y-0' : '-translate-y-full'"
       >
         <div class="mx-auto flex w-full max-w-2xl items-center justify-between">
@@ -81,7 +81,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
               class="rounded-xl p-2 transition-colors"
               :class="isActive(item.to)
                 ? 'nav-active'
-                : 'text-stone-700 hover:text-stone-900'"
+                : 'text-[var(--text-subtle)] hover:text-[var(--text-main)]'"
               @click="handleNavClick(item)"
             >
               <component
@@ -97,7 +97,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
               <button
                 ref="mobileMoreButtonRef"
                 class="rounded-xl p-2 transition-colors"
-                :class="moreMenuOpen ? 'nav-active' : 'text-stone-700 hover:text-stone-900'"
+                :class="moreMenuOpen ? 'nav-active' : 'text-[var(--text-subtle)] hover:text-[var(--text-main)]'"
                 :aria-expanded="moreMenuOpen"
                 aria-haspopup="menu"
                 title="更多"
@@ -130,7 +130,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
         to="/compose"
         title="發文"
         aria-label="發文"
-        class="fixed bottom-8 right-8 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-stone-200 text-stone-700 shadow-sm transition-colors hover:bg-stone-300 hover:shadow-md xl:flex border border-stone-300"
+        class="fixed bottom-8 right-8 z-40 hidden h-14 w-14 items-center justify-center rounded-full bg-[var(--surface-line)] text-[var(--text-main)] shadow-sm transition-colors hover:opacity-80 hover:shadow-md xl:flex border border-[var(--surface-line)]"
       >
         <component
           :is="navigationIcons.compose"
@@ -139,7 +139,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
         />
       </NuxtLink>
 
-      <nav class="fixed inset-x-0 bottom-0 z-20 border-t border-stone-200 bg-[#faf7f2]/95 px-3 py-2 backdrop-blur xl:hidden">
+      <nav class="fixed inset-x-0 bottom-0 z-20 border-t border-[var(--surface-line)] nav-bg-blur px-3 py-2 backdrop-blur xl:hidden">
         <div :class="['mx-auto grid w-full max-w-2xl gap-2', mobileBottomGridClass]">
           <template v-for="item in mobileBottomItems" :key="item.key">
             <!-- 發文：特殊圓形 accent 按鈕 -->
@@ -150,7 +150,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
               :aria-label="item.label"
               class="flex items-center justify-center"
             >
-              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-stone-200 text-stone-700 shadow-sm transition-colors hover:bg-stone-300">
+              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--surface-line)] text-[var(--text-main)] shadow-sm transition-colors hover:opacity-80">
                 <component
                   :is="navigationIcons[item.icon]"
                   class="h-5 w-5"
@@ -169,7 +169,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
               class="flex items-center justify-center rounded-xl px-2 py-2 transition-colors"
               :class="isActive(item.to)
                 ? 'nav-active'
-                : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'"
+                : 'text-[var(--text-subtle)] hover:bg-[var(--surface-line)] hover:text-[var(--text-main)]'"
               @click="handleNavClick(item)"
             >
               <component

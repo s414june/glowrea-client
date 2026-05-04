@@ -82,13 +82,13 @@ function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
 
       <div class="min-w-0 flex-1">
         <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <p class="min-w-0 truncate font-semibold text-stone-800">
+          <p class="min-w-0 truncate font-semibold text-[var(--text-main)]">
             {{ authorName }}
           </p>
-          <p class="min-w-0 truncate text-sm text-stone-500">
+          <p class="min-w-0 truncate text-sm text-[var(--text-subtle)]">
             {{ authorHandle }}
           </p>
-          <p class="shrink-0 text-sm text-stone-500">
+          <p class="shrink-0 text-sm text-[var(--text-subtle)]">
             • {{ formattedTime }}
           </p>
         </div>

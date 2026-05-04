@@ -33,9 +33,9 @@ function handleNavClick(item: NavItem): void {
 </script>
 
 <template>
-  <aside class="h-screen border-r border-stone-200 bg-[#faf7f2] px-4 py-3">
+  <aside class="h-screen border-r border-[var(--surface-line)] nav-bg px-4 py-3">
     <button
-      class="headline-font flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-lg font-semibold text-[var(--nav-accent)] transition-colors hover:bg-stone-200"
+      class="headline-font flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-lg font-semibold text-[var(--nav-accent)] transition-colors hover:bg-[var(--surface-line)]"
       title="回到首頁並刷新"
       aria-label="回到首頁並刷新"
       @click="goHomeAndRefreshTimeline"
@@ -54,7 +54,7 @@ function handleNavClick(item: NavItem): void {
         class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors"
         :class="isActive(item.to)
           ? 'nav-active'
-          : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'"
+          : 'text-[var(--text-subtle)] hover:bg-[var(--surface-line)] hover:text-[var(--text-main)]'"
         @click="handleNavClick(item)"
       >
         <component
@@ -70,7 +70,7 @@ function handleNavClick(item: NavItem): void {
         <button
           ref="moreButtonRef"
           class="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors"
-          :class="moreMenuOpen ? 'nav-active' : 'text-stone-700 hover:bg-stone-200 hover:text-stone-900'"
+          :class="moreMenuOpen ? 'nav-active' : 'text-[var(--text-subtle)] hover:bg-[var(--surface-line)] hover:text-[var(--text-main)]'"
           :aria-expanded="moreMenuOpen"
           aria-haspopup="menu"
           title="更多"
