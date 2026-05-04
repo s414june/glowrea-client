@@ -43,11 +43,12 @@ const tabs: { id: 'statuses' | 'accounts' | 'hashtags'; label: string }[] = [
   <main class="mx-auto w-full max-w-2xl px-4 py-4 sm:py-6">
     <!-- 搜尋框 -->
     <div class="relative mb-4">
+      <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-subtle)] pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input
         v-model="query"
-        type="search"
+        type="text"
         placeholder="搜尋"
-        class="w-full rounded-2xl border border-[var(--surface-line)] bg-[var(--surface-card)] px-4 py-3 pr-10 text-sm text-[var(--text-main)] placeholder:text-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+        class="w-full rounded-2xl border border-[var(--surface-line)] bg-[var(--surface-card)] pl-10 pr-10 py-3 text-sm text-[var(--text-main)] placeholder:text-[var(--text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
         @keydown="onKeydown"
       />
       <button

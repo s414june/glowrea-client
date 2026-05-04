@@ -66,13 +66,13 @@
 	background-color: #faf7f2;
 }
 .dark .nav-bg {
-	background-color: #292624;
+	background-color: var(--surface-bg);
 }
 .nav-bg-blur {
 	background-color: rgba(250, 247, 242, 0.95);
 }
 .dark .nav-bg-blur {
-	background-color: #292624;
+	background-color: var(--surface-bg);
 }
 
 html,
