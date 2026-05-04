@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   maxVisible: 4,
   gridClass: 'mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2',
-  imageClass: 'h-45 w-full object-cover'
+  imageClass: 'object-cover'
 })
 
 const imageAttachments = computed(() => {
@@ -44,7 +44,7 @@ const baseImageClass = computed(() => {
     .replace(/\s+/g, ' ')
     .trim()
 
-  return cleaned || 'h-45 w-full'
+  return cleaned || ''
 })
 
 function isFailed(id: string): boolean {
@@ -104,6 +104,19 @@ function onImageLoad(id: string, media: StatusImageAttachment, event: Event): vo
   probe.src = media.url
 }
 
+function wrapperMaskStyle(id: string): Record<string, string> {
+  const dir = imageOverflowDirs.value[id]
+  if (!dir) return {}
+  const gradient = dir === 'horizontal'
+    ? 'linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%)'
+    : 'linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)'
+
+  return {
+    maskImage: gradient,
+    WebkitMaskImage: gradient,
+  }
+}
+
 function imageMaskStyle(id: string): Record<string, string> {
   const dir = imageOverflowDirs.value[id]
   if (!dir) return {}
@@ -131,22 +144,28 @@ function imageDisplayClass(id: string): string {
 
 function wrapperClass(id: string): string {
   const fitMode = imageFitModes.value[id] || 'cover'
-  const base = 'relative overflow-hidden rounded-xl border border-stone-200 cursor-pointer'
+  const base = 'relative overflow-hidden rounded-xl border border-stone-200 cursor-pointer flex items-center justify-center'
   // full mode: shrink-wrap the image and center in cell
-  if (fitMode === 'full') return `${base} w-fit mx-auto`
-  // cover mode: fill the grid cell normally
-  return base
+  return `${base} w-fit mx-auto`
+}
+
+function wrapperStyle(id: string): Record<string, string> {
+  const dir = imageOverflowDirs.value[id]
+  const fullMaxHeightPx = 450
+  const fullMaxWidthPx = fullMaxHeightPx * minCoverRatio
+  const mask = wrapperMaskStyle(id)
+  if (dir === 'vertical') return { ...mask, maxHeight: `${fullMaxHeightPx}px` }
+  if (dir === 'horizontal') return { ...mask, maxWidth: `${fullMaxWidthPx}px` }
+  return mask
 }
 
 function imageStyle(id: string): Record<string, string> {
   const dir = imageOverflowDirs.value[id]
-  const fullMaxHeightPx = 450
-  const fullMaxWidthPx = fullMaxHeightPx * maxCoverRatio
-  const mask = imageMaskStyle(id)
-  const fitMode = imageFitModes.value[id] || 'cover'
-  if (fitMode === 'full' && dir === 'horizontal') return { ...mask, maxHeight: `${fullMaxHeightPx}px` }
-  if (fitMode === 'full' && dir === 'vertical') return { ...mask, maxWidth: `${fullMaxWidthPx}px` }
-  return mask
+  const fullMaxHeightPx = 550
+  const fullMaxWidthPx = fullMaxHeightPx * minCoverRatio
+  if (dir === 'horizontal') return { maxHeight: `${fullMaxHeightPx}px` }
+  if (dir === 'vertical') return { maxWidth: `${fullMaxWidthPx}px` }
+  return {}
 }
 
 // ── 燈箱 ─────────────────────────────────────────────────────────
@@ -176,7 +195,7 @@ watch(imageAttachments, () => {
 <template>
   <div v-if="visibleImages.length" :class="resolvedGridClass">
     <div v-for="(media, index) in visibleImages" :key="media.id" :class="wrapperClass(media.id)"
-      @click="openLightbox(index)">
+      :style="wrapperStyle(media.id)" @click="openLightbox(index)">
       <img v-if="!isFailed(media.id)" :src="media.previewUrl || media.url" :alt="media.description || '貼文圖片'"
         :class="imageDisplayClass(media.id)" :style="imageStyle(media.id)" loading="lazy"
         @load="onImageLoad(media.id, media, $event)" @error="onImageError(media.id)">
