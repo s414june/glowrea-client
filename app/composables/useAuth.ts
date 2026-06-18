@@ -1,17 +1,3 @@
-type LoginAccount = {
-  id: string
-  username: string
-  acct: string
-  displayName: string
-  avatar: string
-  serverOrigin: string
-}
-
-type LoginResponse = {
-  authenticated: boolean
-  account: LoginAccount
-}
-
 type SessionResponse = {
   authenticated: boolean
   accountId?: string
@@ -54,41 +40,27 @@ export function useAuth() {
     return isAuthenticated.value
   }
 
-  async function login(): Promise<boolean> {
-    if (isLoading.value) {
-      return false
-    }
+  async function login(): Promise<void> {
+    if (isLoading.value) return
 
     isLoading.value = true
     errorMessage.value = null
 
     try {
-      const response = await $fetch<LoginResponse>('/api/auth/login', {
+      const { authorizationUrl } = await $fetch<{ authorizationUrl: string }>('/api/auth/start', {
         method: 'POST',
       })
-
-      isAuthenticated.value = Boolean(response.authenticated)
-      accountId.value = response.account.id
-      accountKey.value = `${response.account.serverOrigin}::${response.account.id}`
-      serverOrigin.value = response.account.serverOrigin
-      initialized.value = true
-      return isAuthenticated.value
+      // 導向 Mastodon 授權頁，頁面會離開，不再回來此函式
+      await navigateTo(authorizationUrl, { external: true })
     } catch (error: unknown) {
       const message =
         typeof error === 'object' && error && 'statusMessage' in error
           ? String((error as { statusMessage?: string }).statusMessage || 'Login failed.')
           : 'Login failed.'
-
       errorMessage.value = message
-      isAuthenticated.value = false
-      accountId.value = null
-      accountKey.value = null
-      serverOrigin.value = null
-      initialized.value = true
-      return false
-    } finally {
       isLoading.value = false
     }
+    // 導向期間 isLoading 保持 true，頁面跳轉後自然消失
   }
 
   async function logout(): Promise<void> {

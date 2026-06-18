@@ -1,6 +1,5 @@
 import type { H3Event } from 'h3'
-import { getCredential } from './credential-store'
-import { requireAuthSession } from './auth-session'
+import { decryptToken, requireAuthSession } from './auth-session'
 
 export type RequestCredentials = {
   accessToken: string
@@ -10,34 +9,30 @@ export type RequestCredentials = {
 }
 
 /**
- * 從 session cookie 取出 accountKey，再從 credential store 解密 access token。
- * 若 session 無效或找不到 credential 則拋出對應 HTTP 錯誤。
- *
- * 所有需要 Mastodon API 的 server route 應使用此函式取代直接讀取 runtimeConfig.mastodonToken。
+ * 從 session cookie 取出帳號資訊並解密 access token。
+ * token 以 AES-256-GCM 加密存放於 session payload，不依賴外部 KV。
  */
-export async function requireRequestCredentials(event: H3Event): Promise<RequestCredentials> {
+export function requireRequestCredentials(event: H3Event): RequestCredentials {
   const session = requireAuthSession(event)
 
   const runtimeConfig = useRuntimeConfig(event)
-  const secret = (runtimeConfig.authSessionSecret || runtimeConfig.mastodonToken) as string
+  const secret = runtimeConfig.authSessionSecret as string
 
   if (!secret) {
-    throw createError({ statusCode: 500, statusMessage: 'Missing auth session secret configuration.' })
+    throw createError({ statusCode: 500, statusMessage: 'Missing NUXT_AUTH_SESSION_SECRET configuration.' })
   }
 
-  const creds = await getCredential(secret, session.accountKey)
-
-  if (!creds) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Session credentials not found or expired. Please log in again.',
-    })
+  let accessToken: string
+  try {
+    accessToken = decryptToken(session.encryptedToken, secret)
+  } catch {
+    throw createError({ statusCode: 401, statusMessage: 'Session token invalid. Please log in again.' })
   }
 
   return {
-    accessToken: creds.accessToken,
-    serverOrigin: creds.serverOrigin,
-    accountId: creds.accountId,
+    accessToken,
+    serverOrigin: session.serverOrigin,
+    accountId: session.accountId,
     accountKey: session.accountKey,
   }
 }

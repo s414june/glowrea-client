@@ -4,13 +4,18 @@ import { useAuth } from '~/composables/useAuth'
 useSeoMeta({ title: '登入' })
 
 const auth = useAuth()
+const config = useRuntimeConfig()
+
+const serverHost = computed(() => {
+  try {
+    return new URL(config.public.mastodonApiBase).hostname
+  } catch {
+    return config.public.mastodonApiBase || ''
+  }
+})
 
 async function handleLogin(): Promise<void> {
-  const success = await auth.login()
-
-  if (success) {
-    await navigateTo('/timelines')
-  }
+  await auth.login()
 }
 </script>
 
@@ -20,11 +25,13 @@ async function handleLogin(): Promise<void> {
       <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
         Glowrea Access
       </p>
-      <h1 class="headline-font mt-3 text-3xl font-semibold text-stone-900 sm:text-4xl">
+      <h1 class="headline-font mt-3 text-3xl font-semibold text-[var(--text-main)] sm:text-4xl">
         登入 Glowrea
       </h1>
-      <p class="mt-4 max-w-xl text-sm leading-7 text-stone-600 sm:text-base">
-        目前為單一帳號模式。登入後即可檢視 Home Timeline，登出時會清除本地 session。
+      <p class="mt-4 max-w-xl text-sm leading-7 text-[var(--text-subtle)] sm:text-base">
+        連線至
+        <span class="font-medium text-[var(--text-main)]">{{ serverHost }}</span>。登入後即可檢視
+        Home Timeline，登出時會清除本地 session。
       </p>
 
       <div class="mt-8">
@@ -33,7 +40,7 @@ async function handleLogin(): Promise<void> {
           :disabled="auth.isLoading.value"
           @click="handleLogin"
         >
-          {{ auth.isLoading.value ? '登入中...' : '使用 Mastodon 帳號登入' }}
+          {{ auth.isLoading.value ? '跳轉中...' : `前往 ${serverHost} 授權登入` }}
         </button>
       </div>
 

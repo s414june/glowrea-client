@@ -148,7 +148,7 @@ function replyToHandle(status: TimelineStatus): string | null {
 
       <!-- Tab nav — fixed on mobile (follows header), sticky on desktop -->
       <div
-        class="fixed inset-x-0 top-0 z-[19] border-b border-[var(--surface-line)] nav-bg-blur backdrop-blur transition-transform duration-300 ease-in-out xl:sticky xl:inset-x-auto xl:translate-y-0 xl:z-10"
+        class="fixed inset-x-0 top-0 z-[19] border-b border-[var(--surface-line)] nav-bg-blur backdrop-blur transition-transform duration-300 ease-in-out lg:sticky lg:inset-x-auto lg:translate-y-0 lg:z-10"
         :class="headerVisible ? 'translate-y-16' : '-translate-y-full'"
       >
         <div class="mx-auto w-full max-w-2xl overflow-x-auto scrollbar-none px-4">
@@ -168,7 +168,7 @@ function replyToHandle(status: TimelineStatus): string | null {
         </div>
       </div>
       <!-- spacer for fixed tab nav on mobile -->
-      <div class="h-12 xl:hidden" />
+      <div class="h-12 lg:hidden" />
 
       <!-- Tab content -->
       <div class="mt-4">

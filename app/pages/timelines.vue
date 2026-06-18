@@ -22,7 +22,7 @@ hostname.value = data.hostname
     不 sticky，隨頁面自由滑動。
   -->
   <div
-    class="fixed inset-x-0 top-0 z-[19] border-b border-[var(--surface-line)] nav-bg-blur backdrop-blur transition-transform duration-300 ease-in-out xl:sticky xl:inset-x-auto xl:translate-y-0 xl:z-10"
+    class="fixed inset-x-0 top-0 z-[19] border-b border-[var(--surface-line)] nav-bg-blur backdrop-blur transition-transform duration-300 ease-in-out lg:sticky lg:inset-x-auto lg:translate-y-0 lg:z-10"
     :class="headerVisible ? 'translate-y-16' : '-translate-y-full'"
   >
     <div class="mx-auto w-full max-w-2xl overflow-x-auto scrollbar-none">
@@ -40,7 +40,7 @@ hostname.value = data.hostname
   </div>
 
   <!-- 補足 fixed tab nav 推走的空間（僅手機） -->
-  <div class="h-12 xl:hidden" />
+  <div class="h-12 lg:hidden" />
 
   <NuxtPage :keepalive="true" />
 </template>
