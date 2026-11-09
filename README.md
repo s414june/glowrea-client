@@ -84,6 +84,7 @@ This project includes a first implementation of Mastodon Home Timeline at `/home
 2. Fill in the values:
 
 ```bash
+NUXT_APP_ORIGIN=http://localhost:3000
 NUXT_MASTODON_API_BASE=https://your-mastodon-instance
 NUXT_MASTODON_TOKEN=your-access-token
 NUXT_AUTH_SESSION_SECRET=your-long-random-session-secret

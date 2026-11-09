@@ -1,4 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto'
+import { getAppOrigin } from '../../utils/app-origin'
+import { encodeOAuthState } from '../../utils/oauth-state'
 
 const OAUTH_STATE_COOKIE = 'glowrea_oauth'
 const OAUTH_STATE_MAX_AGE_SECONDS = 300 // 5 分鐘
@@ -12,15 +14,15 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Missing OAuth configuration.' })
   }
 
-  const redirectUri = new URL('/api/auth/callback', getRequestURL(event).origin).toString()
+  const redirectUri = new URL('/api/auth/callback', getAppOrigin(event)).toString()
 
   // PKCE
   const codeVerifier = randomBytes(32).toString('base64url')
   const codeChallenge = createHash('sha256').update(codeVerifier).digest('base64url')
   const state = randomBytes(16).toString('hex')
 
-  // 將 state + codeVerifier + redirectUri 存入短效 httpOnly cookie，callback 時驗證
-  setCookie(event, OAUTH_STATE_COOKIE, JSON.stringify({ state, codeVerifier, redirectUri }), {
+  // 將 state + codeVerifier 簽章後存入短效 httpOnly cookie，callback 時驗證
+  setCookie(event, OAUTH_STATE_COOKIE, encodeOAuthState(event, { state, codeVerifier }), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

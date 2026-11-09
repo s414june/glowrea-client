@@ -1,5 +1,5 @@
 import type { TimelineStatus } from '#shared/types/timeline'
-import { fetchLocalTimelinePage } from '~/utils/api/localTimeline'
+import { fetchTrendingStatuses } from '~/utils/api/trends'
 
 type LocalTimelineState = {
   items: Ref<TimelineStatus[]>
@@ -28,20 +28,6 @@ function normalizeError(error: unknown): string {
   return 'Timeline request failed.'
 }
 
-function mergeUniqueById(current: TimelineStatus[], incoming: TimelineStatus[]): TimelineStatus[] {
-  const map = new Map<string, TimelineStatus>()
-
-  for (const item of current) {
-    map.set(item.id, item)
-  }
-
-  for (const item of incoming) {
-    map.set(item.id, item)
-  }
-
-  return Array.from(map.values())
-}
-
 export function useLocalTimeline(): LocalTimelineState {
   const items = ref<TimelineStatus[]>([])
   const nextMaxId = ref<string | null>(null)
@@ -56,6 +42,13 @@ export function useLocalTimeline(): LocalTimelineState {
   const hasMore = computed(() => Boolean(nextMaxId.value))
   const isEmpty = computed(() => !isInitialLoading.value && !initialError.value && items.value.length === 0)
 
+  async function fetchPage(): Promise<{ items: TimelineStatus[]; nextMaxId: string | null }> {
+    return {
+      items: await fetchTrendingStatuses(),
+      nextMaxId: null,
+    }
+  }
+
   async function loadInitial(): Promise<void> {
     if (isInitialLoading.value) return
 
@@ -64,7 +57,7 @@ export function useLocalTimeline(): LocalTimelineState {
     loadMoreError.value = null
 
     try {
-      const response = await fetchLocalTimelinePage()
+      const response = await fetchPage()
       items.value = response.items
       nextMaxId.value = response.nextMaxId
     } catch (error: unknown) {
@@ -81,8 +74,8 @@ export function useLocalTimeline(): LocalTimelineState {
     loadMoreError.value = null
 
     try {
-      const response = await fetchLocalTimelinePage(nextMaxId.value)
-      items.value = mergeUniqueById(items.value, response.items)
+      const response = await fetchPage()
+      items.value = response.items
       nextMaxId.value = response.nextMaxId
     } catch (error: unknown) {
       loadMoreError.value = normalizeError(error)
@@ -99,7 +92,7 @@ export function useLocalTimeline(): LocalTimelineState {
     loadMoreError.value = null
 
     try {
-      const response = await fetchLocalTimelinePage()
+      const response = await fetchPage()
       items.value = response.items
       nextMaxId.value = response.nextMaxId
     } catch (error: unknown) {

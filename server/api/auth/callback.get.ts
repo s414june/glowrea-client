@@ -1,11 +1,12 @@
 import { setAuthSession } from '../../utils/auth-session'
+import { getAppOrigin } from '../../utils/app-origin'
+import { decodeOAuthState } from '../../utils/oauth-state'
 
 const OAUTH_STATE_COOKIE = 'glowrea_oauth'
 
 type OAuthStateCookie = {
   state: string
   codeVerifier: string
-  redirectUri: string
 }
 
 type TokenResponse = {
@@ -33,10 +34,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'OAuth state expired or missing. Please try again.' })
   }
 
-  let stored: OAuthStateCookie
-  try {
-    stored = JSON.parse(stateCookieRaw) as OAuthStateCookie
-  } catch {
+  const stored: OAuthStateCookie | null = decodeOAuthState(event, stateCookieRaw)
+  if (!stored) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid OAuth state cookie.' })
   }
 
@@ -56,8 +55,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: 'Missing OAuth configuration.' })
   }
 
-  // 使用與 start 時完全相同的 redirectUri（從 cookie 讀回），避免字串不符
-  const redirectUri = stored.redirectUri
+  // 固定使用部署設定的 app origin，避免信任 callback request 的 Host header。
+  const redirectUri = new URL('/api/auth/callback', getAppOrigin(event)).toString()
 
   // 以 code + code_verifier 交換 access token
   const tokenRes = await fetch(new URL('/oauth/token', mastodonApiBase).toString(), {

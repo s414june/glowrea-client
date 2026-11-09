@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    appOrigin: '',
     mastodonApiBase: '',
     mastodonClientId: '',
     mastodonClientSecret: '',

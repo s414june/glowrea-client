@@ -3,6 +3,7 @@ import type { H3Event } from 'h3'
 
 export const AUTH_COOKIE_NAME = 'glowrea_session'
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7
+const SESSION_CLOCK_SKEW_MS = 60_000
 
 export type SessionPayload = {
   /** 複合鍵，格式：`${serverOrigin}::${accountId}` */
@@ -27,14 +28,14 @@ function fromBase64Url(input: string): string {
   return Buffer.from(input, 'base64url').toString('utf8')
 }
 
-function getSessionSecret(event: H3Event): string {
+export function getSessionSecret(event: H3Event): string {
   const runtimeConfig = useRuntimeConfig(event)
   const secret = runtimeConfig.authSessionSecret as string
 
-  if (!secret) {
+  if (!secret || Buffer.byteLength(secret, 'utf8') < 32) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'Missing NUXT_AUTH_SESSION_SECRET configuration.'
+      statusMessage: 'NUXT_AUTH_SESSION_SECRET must be configured with at least 32 bytes.'
     })
   }
 
@@ -107,6 +108,15 @@ function decodeSessionToken(token: string, secret: string): SessionPayload | nul
     const payload = JSON.parse(fromBase64Url(payloadPart)) as SessionPayload
 
     if (!payload.accountKey || !payload.serverOrigin || !payload.accountId || !payload.issuedAt || !payload.nonce || !payload.encryptedToken) {
+      return null
+    }
+
+    const now = Date.now()
+    if (
+      !Number.isSafeInteger(payload.issuedAt) ||
+      payload.issuedAt > now + SESSION_CLOCK_SKEW_MS ||
+      now - payload.issuedAt > SESSION_MAX_AGE_SECONDS * 1000
+    ) {
       return null
     }
 

@@ -1,6 +1,6 @@
 import type { TimelineStatus } from '#shared/types/timeline'
 import type { StatusDetail, StatusDetailResponse } from '#shared/types/status'
-import { requireAuthSession } from '../../../utils/auth-session'
+import { requireRequestCredentials } from '../../../utils/request-credentials'
 
 function mapMediaAttachments(input: TimelineStatus): StatusDetail['mediaAttachments'] {
   if (!input.media_attachments?.length) {
@@ -34,11 +34,7 @@ function mapStatus(input: TimelineStatus): StatusDetail {
 }
 
 export default defineEventHandler(async (event): Promise<StatusDetailResponse> => {
-  requireAuthSession(event)
-
-  const runtimeConfig = useRuntimeConfig(event)
-  const mastodonApiBase = runtimeConfig.mastodonApiBase || runtimeConfig.public.mastodonApiBase
-  const mastodonToken = runtimeConfig.mastodonToken
+  const { accessToken, serverOrigin } = requireRequestCredentials(event)
   const id = getRouterParam(event, 'id')
 
   if (!id) {
@@ -48,24 +44,10 @@ export default defineEventHandler(async (event): Promise<StatusDetailResponse> =
     })
   }
 
-  if (!mastodonApiBase) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Missing MASTODON_API_BASE configuration.'
-    })
-  }
-
-  if (!mastodonToken) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Missing MASTODON_TOKEN configuration.'
-    })
-  }
-
-  const endpoint = new URL(`/api/v1/statuses/${id}`, mastodonApiBase)
+  const endpoint = new URL(`/api/v1/statuses/${id}`, serverOrigin)
   const response = await fetch(endpoint.toString(), {
     headers: {
-      Authorization: `Bearer ${mastodonToken}`
+      Authorization: `Bearer ${accessToken}`
     }
   })
 
