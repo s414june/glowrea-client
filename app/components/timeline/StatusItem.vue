@@ -48,8 +48,7 @@ const renderedContent = computed(() =>
   resolveCustomEmoji(activeStatus.value.content, activeStatus.value.emojis ?? [])
 )
 
-const router = useRouter()
-const { hostname, ensureHostname } = useInstanceConfig()
+const { openStatus } = useStatusNavigation()
 
 function shouldSkipCardNavigation(event: MouseEvent | KeyboardEvent): boolean {
   if (!(event.target instanceof Element)) {
@@ -65,13 +64,7 @@ async function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
     return
   }
 
-  await ensureHostname()
-  if (!hostname.value) return
-
-  const accountHandle = activeStatus.value.account.acct || activeStatus.value.account.username
-  const accountSegment = accountHandle.startsWith('@') ? accountHandle : `@${accountHandle}`
-  const encodedAccount = encodeURIComponent(accountSegment).replace(/%40/gi, '@')
-  await router.push(`/${encodeURIComponent(hostname.value)}/${encodedAccount}/${encodeURIComponent(activeStatus.value.id)}`)
+  await openStatus(activeStatus.value)
 }
 </script>
 
@@ -100,7 +93,7 @@ async function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
           </p>
         </div>
 
-        <div class="prose prose-stone mt-2 max-w-none break-words text-sm" v-html="renderedContent" />
+        <div class="mastodon-content mt-2 max-w-none break-words text-sm" v-html="renderedContent" />
 
         <div @click.stop>
           <StatusImageGallery

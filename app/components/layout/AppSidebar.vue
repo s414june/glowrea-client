@@ -3,6 +3,7 @@ import GlowreaLogo from '~/components/layout/GlowreaLogo.vue'
 import { useAppNavigation } from '~/composables/useAppNavigation'
 import { useHomeRefreshSignal } from '~/composables/useHomeRefreshSignal'
 import { useProfileRefreshSignal } from '~/composables/useProfileRefreshSignal'
+import { useAuth } from '~/composables/useAuth'
 import { navigationIcons } from '~/components/layout/navigationIcons'
 import MorePopoverMenu from '~/components/layout/MorePopoverMenu.vue'
 import type { NavItem } from '~/composables/useAppNavigation'
@@ -11,6 +12,7 @@ const route = useRoute()
 const { desktopItems } = useAppNavigation()
 const { triggerHomeRefresh } = useHomeRefreshSignal()
 const { triggerProfileRefresh } = useProfileRefreshSignal()
+const { isAuthenticated } = useAuth()
 const { isOpen: moreMenuOpen, toggle: toggleMoreMenu } = useMoreMenu()
 
 const regularDesktopItems = computed(() => desktopItems.value.filter(i => i.key !== 'more'))
@@ -26,7 +28,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
 }
 
 function handleNavClick(item: NavItem): void {
-  if (item.key === 'profile') {
+  if (item.key === 'profile' && isAuthenticated.value) {
     triggerProfileRefresh()
   }
 }

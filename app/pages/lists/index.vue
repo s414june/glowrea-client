@@ -9,7 +9,7 @@ onMounted(() => loadLists())
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-2xl px-4 py-4">
+  <main class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-4 py-4">
     <!-- 載入中 -->
     <div v-if="isLoading" class="space-y-2">
       <div v-for="i in 5" :key="i" class="timeline-card rounded-2xl p-4 flex items-center gap-3">

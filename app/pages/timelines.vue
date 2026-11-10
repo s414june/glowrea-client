@@ -25,7 +25,7 @@ hostname.value = data.hostname
     class="fixed inset-x-0 top-0 z-[19] border-b border-[var(--surface-line)] nav-bg-blur backdrop-blur transition-transform duration-300 ease-in-out lg:sticky lg:inset-x-auto lg:translate-y-0 lg:z-10"
     :class="headerVisible ? 'translate-y-16' : '-translate-y-full'"
   >
-    <div class="mx-auto w-full max-w-2xl overflow-x-auto scrollbar-none">
+    <div class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 overflow-x-auto scrollbar-none">
       <nav class="flex min-w-max" role="tablist" aria-label="首頁頁籤">
         <template v-if="auth.isAuthenticated.value">
           <NuxtLink to="/timelines" class="home-tab" :class="route.path === '/timelines' ? 'home-tab--active' : ''"

@@ -39,7 +39,7 @@ onBeforeUnmount(() => { observer?.disconnect(); observer = null })
 
 <template>
   <div>
-    <div class="mx-auto w-full max-w-2xl px-4 pt-4 pb-2">
+    <div class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-4 pt-4 pb-2">
       <h1 class="text-lg font-bold" :style="{ color: 'var(--text-main)' }">
         <span v-if="listTitle">{{ listTitle }}</span>
         <span v-else class="inline-block h-6 w-32 rounded align-middle" :style="{ backgroundColor: 'var(--surface-line)' }" />

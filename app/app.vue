@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { initSettings } = useAppSettings()
-onMounted(() => initSettings())
+initSettings()
 </script>
 
 <template>

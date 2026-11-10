@@ -45,7 +45,7 @@ function handleReset(): void {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-2xl space-y-4 px-4 py-6">
+  <main class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 space-y-4 px-4 py-6">
     <!-- 色彩主題 -->
     <section class="timeline-card rounded-2xl p-6">
       <p class="mb-4 text-sm font-semibold text-[var(--text-main)]">色彩主題</p>

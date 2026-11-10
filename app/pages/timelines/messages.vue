@@ -17,6 +17,7 @@ const {
   loadMore,
   retryInitial,
 } = useConversations()
+const { openStatus } = useStatusNavigation()
 
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
@@ -63,7 +64,7 @@ function relativeTime(iso: string): string {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-2xl px-2 py-4">
+  <main class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-2 py-4">
     <!-- Loading -->
     <LoadingSkeleton v-if="isInitialLoading" />
 
@@ -120,13 +121,16 @@ function relativeTime(iso: string): string {
             </span>
           </div>
 
-          <p
+          <button
             v-if="item.lastStatus"
-            class="mt-1 line-clamp-2 text-xs"
+            type="button"
+            class="mt-1 block w-full cursor-pointer line-clamp-2 text-left text-xs hover:text-[var(--text-main)]"
             :class="item.unread ? 'text-[var(--text-main)] font-medium' : 'text-[var(--text-subtle)]'"
+            :aria-label="`開啟貼文：${stripHtml(item.lastStatus.content)}`"
+            @click="openStatus(item.lastStatus)"
           >
             {{ stripHtml(item.lastStatus.content) }}
-          </p>
+          </button>
           <p v-else class="mt-1 text-xs text-[var(--text-subtle)] italic">（無訊息）</p>
         </div>
       </article>

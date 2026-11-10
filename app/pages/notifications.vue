@@ -17,6 +17,7 @@ const {
   loadMore,
   retryInitial,
 } = useNotifications()
+const { openStatus } = useStatusNavigation()
 
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
@@ -69,7 +70,7 @@ function stripHtml(html: string): string {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-2xl px-2 py-4">
+  <main class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-2 py-4">
     <!-- Loading -->
     <LoadingSkeleton v-if="isInitialLoading" />
 
@@ -121,12 +122,15 @@ function stripHtml(html: string): string {
               {{ actionLabel[item.type] }}
               <span class="ml-1 text-xs">· {{ relativeTime(item.createdAt) }}</span>
             </p>
-            <p
+            <button
               v-if="item.status"
-              class="mt-2 line-clamp-2 text-xs text-[var(--text-subtle)] border-l-2 border-[var(--surface-line)] pl-2"
+              type="button"
+              class="mt-2 block w-full cursor-pointer line-clamp-2 border-l-2 border-[var(--surface-line)] pl-2 text-left text-xs text-[var(--text-subtle)] hover:text-[var(--text-main)]"
+              :aria-label="`開啟貼文：${stripHtml(item.status.content)}`"
+              @click="openStatus(item.status)"
             >
               {{ stripHtml(item.status.content) }}
-            </p>
+            </button>
           </div>
         </div>
       </article>

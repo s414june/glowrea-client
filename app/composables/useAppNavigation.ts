@@ -18,8 +18,8 @@ const navItems: NavItem[] = [
 
 // 登入後桌機側欄（compose 永遠排除，由 FAB 負責）
 const AUTH_DESKTOP_KEYS = ['home', 'notifications', 'explore', 'profile', 'more']
-// 未登入桌機側欄：只保留無需驗證的頁籤
-const GUEST_DESKTOP_KEYS = ['home', 'explore', 'more']
+// 未登入時保留個人檔案入口；點擊後由路由 middleware 導向登入頁。
+const GUEST_DESKTOP_KEYS = ['home', 'explore', 'profile', 'more']
 
 // 行動版頂部小圖示（more 按鈕由版面層單獨渲染）
 const AUTH_MOBILE_TOP_KEYS = ['more']
@@ -27,7 +27,7 @@ const GUEST_MOBILE_TOP_KEYS = ['more']
 
 // 行動版底部列
 const AUTH_MOBILE_BOTTOM_ORDER = ['home', 'notifications', 'compose', 'explore', 'profile']
-const GUEST_MOBILE_BOTTOM_ORDER = ['home', 'explore']
+const GUEST_MOBILE_BOTTOM_ORDER = ['home', 'explore', 'profile']
 
 export function useAppNavigation() {
   const { isAuthenticated } = useAuth()

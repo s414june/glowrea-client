@@ -4,6 +4,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const auth = useAuth()
   await auth.ensureSession()
 
+  if (to.path === '/timelines' && !auth.isAuthenticated.value) {
+    const instance = useInstanceConfig()
+    await instance.ensureHostname()
+    return navigateTo(instance.localPath.value ?? '/timelines/federated', { replace: true })
+  }
+
   const protectedPrefixes = [
     '/timelines/messages',
     '/notifications',

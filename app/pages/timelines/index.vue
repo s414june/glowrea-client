@@ -6,12 +6,7 @@ useSeoMeta({ title: '追蹤' })
 
 const auth = useAuth()
 const route = useRoute()
-const { hasInstance, localPath } = useInstanceConfig()
 const { signal } = useHomeRefreshSignal()
-
-function guestRedirectDest(): string {
-  return hasInstance.value && localPath.value ? localPath.value : '/timelines/federated'
-}
 const lastAppliedRefreshSignal = ref(0)
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
@@ -36,11 +31,6 @@ function retryLoadMore(): Promise<void> {
 }
 
 onMounted(async () => {
-  if (!auth.isAuthenticated.value) {
-    await navigateTo(guestRedirectDest(), { replace: true })
-    return
-  }
-
   if (signal.value > 0 && signal.value !== lastAppliedRefreshSignal.value) {
     lastAppliedRefreshSignal.value = signal.value
     if (items.value.length === 0) {
@@ -116,7 +106,7 @@ onBeforeUnmount(() => {
 <template>
   <!-- 已登入 → 追蹤時間軸 -->
   <main>
-    <section v-if="auth.errorMessage.value" class="mx-auto w-full max-w-2xl px-4 pt-4">
+    <section v-if="auth.errorMessage.value" class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-4 pt-4">
       <p class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
         {{ auth.errorMessage.value }}
       </p>

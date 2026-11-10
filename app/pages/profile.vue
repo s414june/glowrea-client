@@ -119,7 +119,7 @@ function replyToHandle(status: TimelineStatus): string | null {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-2xl px-4 pb-8">
+  <main class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-4 pb-8">
     <!-- Loading skeleton for profile header -->
     <div v-if="isInitialLoading && !profile" class="timeline-card animate-pulse overflow-hidden rounded-2xl mt-4">
       <div class="h-36 w-full bg-[var(--surface-line)] sm:h-44" />

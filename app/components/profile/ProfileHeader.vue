@@ -38,7 +38,7 @@ defineProps<{
 
       <div
         v-if="profile.note"
-        class="prose prose-stone mt-3 max-w-none text-sm"
+        class="mastodon-content mt-3 max-w-none text-sm"
         v-html="profile.note"
       />
 

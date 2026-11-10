@@ -6,10 +6,10 @@ defineProps<{
 </script>
 
 <template>
-  <main class="mx-auto flex w-full max-w-2xl flex-col items-center px-4 pt-24 text-center">
+  <main class="mx-auto flex w-full max-w-2xl flex-col items-center px-4 pt-24 text-center lg:mx-0 lg:ml-6">
     <span class="text-4xl" aria-hidden="true">🚧</span>
-    <h2 class="mt-5 text-lg font-semibold text-stone-800">即將推出</h2>
-    <p class="mt-2 text-sm text-stone-500">
+    <h2 class="mt-5 text-lg font-semibold text-[var(--text-main)]">即將推出</h2>
+    <p class="mt-2 text-sm text-[var(--text-subtle)]">
       {{ label ? `「${label}」` : '此功能' }}尚未開放，敬請期待。
     </p>
   </main>

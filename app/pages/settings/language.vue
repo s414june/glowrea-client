@@ -3,7 +3,7 @@ useSeoMeta({ title: '設定' })
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-2xl px-4 py-6">
+  <main class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-4 py-6">
     <section class="timeline-card rounded-2xl p-6">
       <p class="text-sm font-medium text-[var(--text-main)] mb-3">介面語言</p>
       <button

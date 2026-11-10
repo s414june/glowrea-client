@@ -52,7 +52,7 @@ onBeforeUnmount(() => { observer?.disconnect(); observer = null })
       class="border-b px-2 py-4"
       :style="{ borderColor: 'var(--surface-line)', backgroundColor: 'var(--surface-card)' }"
     >
-      <div class="mx-auto w-full max-w-2xl px-2">
+      <div class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-2">
         <div class="flex items-start justify-between gap-3">
           <div>
             <h1 class="text-xl font-bold" :style="{ color: 'var(--text-main)' }">#{{ tagName }}</h1>

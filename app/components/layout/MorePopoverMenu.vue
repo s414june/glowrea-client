@@ -19,7 +19,7 @@ const props = defineProps<{
 const route = useRoute()
 const { isOpen, close } = useMoreMenu()
 const { isAuthenticated, logout: authLogout } = useAuth()
-const { hasInstance, localPath } = useInstanceConfig()
+const { localPath, ensureHostname } = useInstanceConfig()
 
 type MoreMenuLink = {
   type: 'link'
@@ -39,9 +39,11 @@ type MoreMenuAction = {
 
 async function logout(): Promise<void> {
   close()
+  // Capture the configured instance destination before clearing the auth session.
+  await ensureHostname()
+  const destination = localPath.value || '/timelines/federated'
   await authLogout()
-  const dest = hasInstance.value && localPath.value ? localPath.value : '/timelines/federated'
-  await navigateTo(dest)
+  await navigateTo(destination)
 }
 
 const settingsItems: MoreMenuLink[] = [

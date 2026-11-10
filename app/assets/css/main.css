@@ -106,14 +106,47 @@ body {
 	box-shadow: 0 10px 24px rgba(39, 34, 27, 0.05);
 }
 
-.prose a {
-	color: #1d9bf0;
+.mastodon-content {
+	color: var(--text-main);
+}
+
+.mastodon-content p {
+	margin: 0 0 0.75em;
+}
+
+.mastodon-content p:last-child {
+	margin-bottom: 0;
+}
+
+.mastodon-content a {
+	color: var(--accent);
 	text-decoration: underline;
 	text-underline-offset: 2px;
 }
 
-.prose a:hover {
-	color: #1877f2;
+.mastodon-content a:hover {
+	filter: brightness(1.15);
+}
+
+.mastodon-content blockquote {
+	margin: 0.75em 0;
+	border-left: 3px solid var(--surface-line);
+	padding-left: 0.75em;
+	color: var(--text-subtle);
+}
+
+.mastodon-content ul,
+.mastodon-content ol {
+	margin: 0.5em 0;
+	padding-left: 1.5em;
+}
+
+.mastodon-content ul {
+	list-style: disc;
+}
+
+.mastodon-content ol {
+	list-style: decimal;
 }
 
 /* Mastodon custom emoji inline images */

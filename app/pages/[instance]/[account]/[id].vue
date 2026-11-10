@@ -81,8 +81,8 @@ watch(statusId, async (value, previousValue) => {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-2xl px-4 py-6 sm:py-10">
-    <header class="mb-5 flex items-center justify-between">
+  <main class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-4 pb-6 sm:pb-10">
+    <header class="flex items-center justify-between">
       <button
         class="rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-200"
         aria-label="返回"

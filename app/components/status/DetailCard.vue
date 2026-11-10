@@ -13,24 +13,24 @@ const props = defineProps<{
       <img
         :src="status.account.avatar"
         :alt="status.account.displayName || status.account.username"
-        class="h-10 w-10 rounded-full border border-stone-200 object-cover"
+        class="h-10 w-10 rounded-full border border-[var(--surface-line)] object-cover"
       >
 
       <div class="min-w-0 flex-1">
         <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <p class="min-w-0 truncate font-semibold text-stone-800">
+          <p class="min-w-0 truncate font-semibold text-[var(--text-main)]">
             {{ status.account.displayName || status.account.username }}
           </p>
-          <p class="min-w-0 truncate text-sm text-stone-500">
+          <p class="min-w-0 truncate text-sm text-[var(--text-subtle)]">
             @{{ status.account.acct || status.account.username }}
           </p>
-          <p class="shrink-0 text-sm text-stone-500">
+          <p class="shrink-0 text-sm text-[var(--text-subtle)]">
             • {{ new Date(status.createdAt).toLocaleString('zh-TW') }}
           </p>
         </div>
 
         <div
-          class="prose prose-stone mt-3 max-w-none break-words text-sm"
+          class="mastodon-content mt-3 max-w-none break-words text-sm"
           v-html="status.content"
         />
 

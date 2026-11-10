@@ -20,7 +20,7 @@ async function handleLogin(): Promise<void> {
 </script>
 
 <template>
-  <main class="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4 py-8 sm:px-8">
+  <main class="mx-auto flex max-w-3xl items-center pt-8 px-4 lg:mx-0 lg:ml-6">
     <section class="timeline-card w-full rounded-3xl p-8 sm:p-12">
       <p class="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
         Glowrea Access
@@ -37,17 +37,13 @@ async function handleLogin(): Promise<void> {
       <div class="mt-8">
         <button
           class="rounded-xl border border-teal-700 bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-800 disabled:cursor-not-allowed disabled:border-stone-300 disabled:bg-stone-300"
-          :disabled="auth.isLoading.value"
-          @click="handleLogin"
-        >
+          :disabled="auth.isLoading.value" @click="handleLogin">
           {{ auth.isLoading.value ? '跳轉中...' : `前往 ${serverHost} 授權登入` }}
         </button>
       </div>
 
-      <p
-        v-if="auth.errorMessage.value"
-        class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
-      >
+      <p v-if="auth.errorMessage.value"
+        class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
         {{ auth.errorMessage.value }}
       </p>
     </section>
