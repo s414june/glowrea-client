@@ -7,12 +7,14 @@ const headerVisible = useState<boolean>('header-visible', () => true)
 
 const auth = useAuth()
 const route = useRoute()
-const { hostname, hasInstance, localPath, federatedPath } = useInstanceConfig()
+const { hostname, hasInstance, localPath, federatedPath, ensureHostname, setHostname } = useInstanceConfig()
 
-// 確保 instance hostname 已載入（SSR + client 皆執行，不依賴 useAsyncData 快取）
-const headers = useRequestHeaders(['cookie'])
-const data = await $fetch<{ hostname: string | null }>('/api/config/instance', { headers })
-hostname.value = data.hostname
+await ensureHostname()
+if (auth.isAuthenticated.value && auth.serverOrigin.value) {
+  setHostname(new URL(auth.serverOrigin.value).hostname)
+} else if (typeof route.params.instance === 'string') {
+  setHostname(route.params.instance)
+}
 </script>
 
 <template>

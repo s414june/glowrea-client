@@ -6,9 +6,13 @@ import { useStatusDetail } from '~/composables/useStatusDetail'
 import LoadingSkeleton from '~/components/timeline/LoadingSkeleton.vue'
 
 definePageMeta({
-  middleware: () => {
+  middleware: async () => {
     const auth = useAuth()
-    if (!auth.isAuthenticated.value) return navigateTo('/login')
+    if (!auth.isAuthenticated.value) {
+      const instance = useInstanceConfig()
+      await instance.ensureHostname()
+      return navigateTo(instance.loginPath.value)
+    }
   },
 })
 

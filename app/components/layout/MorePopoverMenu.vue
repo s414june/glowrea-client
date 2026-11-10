@@ -18,8 +18,8 @@ const props = defineProps<{
 
 const route = useRoute()
 const { isOpen, close } = useMoreMenu()
-const { isAuthenticated, logout: authLogout } = useAuth()
-const { localPath, ensureHostname } = useInstanceConfig()
+const { isAuthenticated, serverOrigin, logout: authLogout } = useAuth()
+const { hostname, loginPath, ensureHostname } = useInstanceConfig()
 
 type MoreMenuLink = {
   type: 'link'
@@ -39,11 +39,22 @@ type MoreMenuAction = {
 
 async function logout(): Promise<void> {
   close()
-  // Capture the configured instance destination before clearing the auth session.
+  // Capture the selected instance before clearing the auth session.
   await ensureHostname()
-  const destination = localPath.value || '/timelines/federated'
+  const instanceHost = serverOrigin.value
+    ? new URL(serverOrigin.value).hostname
+    : hostname.value
+  const destination = instanceHost
+    ? `/login/${encodeURIComponent(instanceHost)}`
+    : '/login'
   await authLogout()
   await navigateTo(destination)
+}
+
+async function goToLogin(): Promise<void> {
+  close()
+  await ensureHostname()
+  await navigateTo(loginPath.value)
 }
 
 const settingsItems: MoreMenuLink[] = [
@@ -168,12 +179,12 @@ const transitionOrigin = computed(() =>
 
       <!-- 未登入：登入入口 -->
       <div v-if="showLoginSection" class="pt-1 border-t border-[var(--surface-line)]">
-        <NuxtLink to="/login"
+        <button
           class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--nav-accent)] transition-colors hover:bg-[var(--surface-line)]"
-          role="menuitem" @click="close()">
+          role="menuitem" @click="goToLogin">
           <LogIn class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>登入</span>
-        </NuxtLink>
+        </button>
       </div>
     </div>
   </Transition>

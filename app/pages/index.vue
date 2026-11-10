@@ -5,7 +5,9 @@ await auth.ensureSession()
 if (auth.isAuthenticated.value) {
   await navigateTo('/timelines', { replace: true })
 } else {
-  await navigateTo('/login', { replace: true })
+  const instance = useInstanceConfig()
+  await instance.ensureHostname()
+  await navigateTo(instance.loginPath.value, { replace: true })
 }
 </script>
 

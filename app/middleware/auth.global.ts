@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (to.path === '/timelines' && !auth.isAuthenticated.value) {
     const instance = useInstanceConfig()
     await instance.ensureHostname()
-    return navigateTo(instance.localPath.value ?? '/timelines/federated', { replace: true })
+    return navigateTo(instance.localPath.value ?? '/instances', { replace: true })
   }
 
   const protectedPrefixes = [
@@ -16,7 +16,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
     '/profile',
     '/more',
     '/compose',
-    '/settings',
     '/likes',
     '/bookmarks',
     '/lists',
@@ -30,10 +29,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
     protectedExact.includes(to.path)
 
   if (isProtected && !auth.isAuthenticated.value) {
-    return navigateTo('/login')
+    const instance = useInstanceConfig()
+    await instance.ensureHostname()
+    return navigateTo(instance.loginPath.value)
   }
 
   if (to.path === '/login' && auth.isAuthenticated.value) {
-    return navigateTo('/timelines')
+    return navigateTo('/instances')
   }
 })

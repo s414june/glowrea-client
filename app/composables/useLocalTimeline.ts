@@ -29,6 +29,7 @@ function normalizeError(error: unknown): string {
 }
 
 export function useLocalTimeline(): LocalTimelineState {
+  const route = useRoute()
   const items = ref<TimelineStatus[]>([])
   const nextMaxId = ref<string | null>(null)
 
@@ -44,7 +45,9 @@ export function useLocalTimeline(): LocalTimelineState {
 
   async function fetchPage(): Promise<{ items: TimelineStatus[]; nextMaxId: string | null }> {
     return {
-      items: await fetchTrendingStatuses(),
+      items: await fetchTrendingStatuses(
+        typeof route.params.instance === 'string' ? route.params.instance : undefined,
+      ),
       nextMaxId: null,
     }
   }

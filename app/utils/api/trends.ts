@@ -5,8 +5,11 @@ export async function fetchTrendingTags(): Promise<HashtagItem[]> {
   return $fetch<HashtagItem[]>('/api/trends/tags', { method: 'GET' })
 }
 
-export async function fetchTrendingStatuses(): Promise<TimelineStatus[]> {
-  return $fetch<TimelineStatus[]>('/api/trends/statuses', { method: 'GET' })
+export async function fetchTrendingStatuses(instance?: string): Promise<TimelineStatus[]> {
+  return $fetch<TimelineStatus[]>('/api/trends/statuses', {
+    method: 'GET',
+    query: instance ? { instance } : undefined,
+  })
 }
 
 export async function fetchTrendingAccounts(): Promise<AccountSummary[]> {

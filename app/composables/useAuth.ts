@@ -40,7 +40,7 @@ export function useAuth() {
     return isAuthenticated.value
   }
 
-  async function login(): Promise<void> {
+  async function login(instance?: string): Promise<void> {
     if (isLoading.value) return
 
     isLoading.value = true
@@ -49,6 +49,7 @@ export function useAuth() {
     try {
       const { authorizationUrl } = await $fetch<{ authorizationUrl: string }>('/api/auth/start', {
         method: 'POST',
+        body: instance ? { instance } : undefined,
       })
       // 導向 Mastodon 授權頁，頁面會離開，不再回來此函式
       await navigateTo(authorizationUrl, { external: true })

@@ -1,8 +1,19 @@
 import type { TimelineStatus } from '#shared/types/timeline'
+import { isSupportedMastodonInstance, normalizeMastodonInstance } from '../../utils/mastodon-instance'
 
 export default defineEventHandler(async (event): Promise<TimelineStatus[]> => {
   const runtimeConfig = useRuntimeConfig(event)
-  const base = runtimeConfig.mastodonApiBase || runtimeConfig.public.mastodonApiBase
+  const configuredBase = runtimeConfig.mastodonApiBase || runtimeConfig.public.mastodonApiBase
+  const requestedInstance = getQuery(event).instance
+  let base = configuredBase
+
+  if (typeof requestedInstance === 'string') {
+    const instance = normalizeMastodonInstance(requestedInstance)
+    if (!instance || !(await isSupportedMastodonInstance(instance.hostname, configuredBase))) {
+      throw createError({ statusCode: 400, statusMessage: 'Unsupported Mastodon instance.' })
+    }
+    base = instance.origin
+  }
 
   if (!base) {
     throw createError({ statusCode: 500, statusMessage: 'Mastodon API base not configured.' })
