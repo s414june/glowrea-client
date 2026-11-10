@@ -28,6 +28,7 @@ export default defineEventHandler(async (event): Promise<TimelinePageResponse> =
 
   if (query.excludeReplies === 'true') endpoint.searchParams.set('exclude_replies', 'true')
   if (query.onlyMedia === 'true') endpoint.searchParams.set('only_media', 'true')
+  if (query.pinned === 'true') endpoint.searchParams.set('pinned', 'true')
 
   const response = await fetch(endpoint.toString(), {
     headers: { Authorization: `Bearer ${accessToken}` },

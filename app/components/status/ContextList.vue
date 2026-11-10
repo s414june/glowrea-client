@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { StatusContext } from '#shared/types/status'
+import { resolveCustomEmoji, resolveCustomEmojiText } from '~/utils/emoji'
+import StatusActions from '~/components/status/StatusActions.vue'
 
 defineProps<{
   context: StatusContext
 }>()
+const { profilePath } = useAccountNavigation()
 </script>
 
 <template>
@@ -19,15 +22,16 @@ defineProps<{
         <li
           v-for="item in context.ancestors"
           :key="item.id"
-          class="rounded-xl border border-[var(--surface-line)] bg-[var(--surface-bg)] p-3"
+          class="relative rounded-xl border border-[var(--surface-line)] bg-[var(--surface-bg)] p-3"
         >
-          <p class="text-xs text-[var(--text-subtle)]">
-            {{ item.account.displayName || item.account.username }}
-          </p>
+          <NuxtLink :to="profilePath(item.account)" class="text-xs text-[var(--text-subtle)] hover:underline">
+            <span v-html="resolveCustomEmojiText(item.account.displayName || item.account.username, item.account.emojis ?? [])" />
+          </NuxtLink>
           <div
             class="mastodon-content mt-1 max-w-none text-sm"
-            v-html="item.content"
+            v-html="resolveCustomEmoji(item.content, item.emojis ?? [])"
           />
+          <StatusActions :status="item" />
         </li>
       </ul>
     </div>
@@ -43,15 +47,16 @@ defineProps<{
         <li
           v-for="item in context.descendants"
           :key="item.id"
-          class="rounded-xl border border-[var(--surface-line)] bg-[var(--surface-bg)] p-3"
+          class="relative rounded-xl border border-[var(--surface-line)] bg-[var(--surface-bg)] p-3"
         >
-          <p class="text-xs text-[var(--text-subtle)]">
-            {{ item.account.displayName || item.account.username }}
-          </p>
+          <NuxtLink :to="profilePath(item.account)" class="text-xs text-[var(--text-subtle)] hover:underline">
+            <span v-html="resolveCustomEmojiText(item.account.displayName || item.account.username, item.account.emojis ?? [])" />
+          </NuxtLink>
           <div
             class="mastodon-content mt-1 max-w-none text-sm"
-            v-html="item.content"
+            v-html="resolveCustomEmoji(item.content, item.emojis ?? [])"
           />
+          <StatusActions :status="item" />
         </li>
       </ul>
     </div>

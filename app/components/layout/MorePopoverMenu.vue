@@ -148,7 +148,7 @@ const transitionOrigin = computed(() =>
         <NuxtLink v-for="item in settingsItems" :key="item.key" :to="item.to"
           class="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors" :class="isItemActive(item)
             ? 'nav-active'
-            : 'text-[var(--text-subtle)] hover:bg-[var(--surface-line)] hover:text-[var(--text-main)]'
+            : 'text-[var(--text-subtle)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-main)]'
             " role="menuitem" @click="close()">
           <component :is="item.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{{ item.label }}</span>
@@ -160,7 +160,7 @@ const transitionOrigin = computed(() =>
         <NuxtLink v-for="item in visibleMainItems" :key="item.key" :to="item.to"
           class="flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors" :class="isItemActive(item)
             ? 'nav-active'
-            : 'text-[var(--text-subtle)] hover:bg-[var(--surface-line)] hover:text-[var(--text-main)]'
+            : 'text-[var(--text-subtle)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-main)]'
             " role="menuitem" @click="close()">
           <component :is="item.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{{ item.label }}</span>
@@ -170,7 +170,7 @@ const transitionOrigin = computed(() =>
       <!-- 已登入：危險操作（登出） -->
       <div v-if="showDangerSection" class="pt-1 border-t border-[var(--surface-line)]">
         <button v-for="item in dangerItems" :key="item.key"
-          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-[var(--surface-line)]"
+          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--text-danger)] transition-colors hover:bg-[var(--surface-hover)]"
           role="menuitem" @click="item.action()">
           <component :is="item.icon" class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{{ item.label }}</span>
@@ -180,7 +180,7 @@ const transitionOrigin = computed(() =>
       <!-- 未登入：登入入口 -->
       <div v-if="showLoginSection" class="pt-1 border-t border-[var(--surface-line)]">
         <button
-          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--nav-accent)] transition-colors hover:bg-[var(--surface-line)]"
+          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
           role="menuitem" @click="goToLogin">
           <LogIn class="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>登入</span>

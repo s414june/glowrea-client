@@ -1,4 +1,4 @@
-import type { TimelineStatus } from './timeline'
+import type { CustomEmoji, TimelineStatus } from './timeline'
 
 export type NotificationAccount = {
   id: string
@@ -7,6 +7,7 @@ export type NotificationAccount = {
   displayName: string
   avatar: string
   url: string
+  emojis?: CustomEmoji[]
 }
 
 export type NotificationItem = {

@@ -17,6 +17,7 @@ const routeTab = computed<ProfileTab>(() => {
 
 const {
   profile,
+  pinnedItems,
   activeTab,
   loadTabIfEmpty,
   items,
@@ -32,6 +33,8 @@ const {
   refresh,
   retryInitial,
 } = useProfilePage(routeTab.value)
+const { openStatus } = useStatusNavigation()
+const { profilePath } = useAccountNavigation()
 
 const profileTitle = computed(() => {
   if (!profile.value) return '個人頁面'
@@ -110,11 +113,11 @@ function firstImage(status: TimelineStatus): string | null {
   return img?.preview_url ?? img?.url ?? null
 }
 
-function replyToHandle(status: TimelineStatus): string | null {
+function replyToAccount(status: TimelineStatus): { acct: string } | null {
   const s = status as TimelineStatus & { in_reply_to_account_id?: string | null; mentions?: { id: string; acct: string }[] }
   if (!s.in_reply_to_account_id) return null
   const mention = s.mentions?.find((m) => m.id === s.in_reply_to_account_id)
-  return mention ? `@${mention.acct}` : null
+  return mention ? { acct: mention.acct } : null
 }
 </script>
 
@@ -136,9 +139,9 @@ function replyToHandle(status: TimelineStatus): string | null {
 
     <!-- Error state (no profile) -->
     <div v-else-if="initialError && !profile" class="timeline-card rounded-2xl p-8 text-center mt-4">
-      <p class="text-sm text-rose-700">{{ initialError }}</p>
+      <p class="text-sm text-[var(--text-danger)]">{{ initialError }}</p>
       <button
-        class="mt-4 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+        class="mt-4 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
         @click="retryInitial"
       >
         重試
@@ -173,8 +176,6 @@ function replyToHandle(status: TimelineStatus): string | null {
           </nav>
         </div>
       </div>
-      <!-- spacer for fixed tab nav on mobile -->
-      <div class="h-12 lg:hidden" />
 
       <!-- Tab content -->
       <div class="mt-4">
@@ -187,10 +188,14 @@ function replyToHandle(status: TimelineStatus): string | null {
 
         <!-- Posts tab -->
         <template v-else-if="activeTab === 'posts'">
-          <div v-if="isEmpty" class="timeline-card rounded-2xl p-8 text-center">
+          <div v-if="isEmpty && pinnedItems.length === 0" class="timeline-card rounded-2xl p-8 text-center">
             <p class="text-sm text-[var(--text-subtle)]">尚無貼文</p>
           </div>
           <div v-else class="space-y-3">
+            <div v-for="item in pinnedItems" :key="`pinned-${item.id}`">
+              <p class="mb-1 px-1 text-xs font-medium text-[var(--accent)]">📌 置頂貼文</p>
+              <StatusItem :status="item" />
+            </div>
             <StatusItem v-for="item in items" :key="item.id" :status="item" />
           </div>
         </template>
@@ -202,8 +207,8 @@ function replyToHandle(status: TimelineStatus): string | null {
           </div>
           <div v-else class="space-y-3">
             <div v-for="item in items" :key="item.id">
-              <p v-if="replyToHandle(item)" class="mb-1 px-1 text-xs text-[var(--text-subtle)]">
-                回覆了 <span class="text-[var(--accent)]">{{ replyToHandle(item) }}</span>
+              <p v-if="replyToAccount(item)" class="mb-1 px-1 text-xs text-[var(--text-subtle)]">
+                回覆了 <NuxtLink :to="profilePath(replyToAccount(item)!)" class="text-[var(--accent)] hover:underline">@{{ replyToAccount(item)!.acct }}</NuxtLink>
               </p>
               <StatusItem :status="item" />
             </div>
@@ -217,14 +222,14 @@ function replyToHandle(status: TimelineStatus): string | null {
           </div>
           <div v-else class="grid grid-cols-3 gap-0.5">
             <template v-for="item in items" :key="item.id">
-              <div v-if="firstImage(item)" class="aspect-square overflow-hidden bg-[var(--surface-line)]">
+              <button v-if="firstImage(item)" type="button" class="aspect-square w-full overflow-hidden bg-[var(--surface-line)]" :aria-label="`開啟 ${item.account.display_name || item.account.username} 的貼文`" @click="openStatus(item)">
                 <img
                   :src="firstImage(item)!"
                   :alt="(item.reblog ?? item).account.display_name + ' 的圖片'"
                   class="h-full w-full object-cover"
                   loading="lazy"
                 />
-              </div>
+              </button>
             </template>
           </div>
         </template>
@@ -236,9 +241,9 @@ function replyToHandle(status: TimelineStatus): string | null {
           </div>
 
           <div v-if="loadMoreError" class="timeline-card rounded-2xl p-4 text-center mt-3">
-            <p class="text-sm text-rose-700">{{ loadMoreError }}</p>
+            <p class="text-sm text-[var(--text-danger)]">{{ loadMoreError }}</p>
             <button
-              class="mt-3 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+              class="mt-3 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
               @click="loadMore"
             >
               重試載入更多

@@ -41,7 +41,7 @@ function handleBack(): void {
       </button>
       <NuxtLink
         to="/timelines"
-        class="rounded-full border border-[var(--surface-line)] px-5 py-2 text-sm font-medium text-[var(--text-subtle)] transition hover:bg-[var(--surface-line)]"
+        class="rounded-full border border-[var(--surface-line)] px-5 py-2 text-sm font-medium text-[var(--text-subtle)] transition hover:bg-[var(--surface-hover)]"
       >
         回首頁
       </NuxtLink>

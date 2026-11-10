@@ -1,6 +1,7 @@
 import type { TimelineStatus } from '#shared/types/timeline'
 import type { StatusContextResponse, StatusDetail } from '#shared/types/status'
-import { requireRequestCredentials } from '../../../../utils/request-credentials'
+import { isSupportedMastodonInstance, normalizeMastodonInstance } from '../../../../utils/mastodon-instance'
+import { getOptionalRequestCredentials, requireRequestCredentials } from '../../../../utils/request-credentials'
 
 function mapMediaAttachments(input: TimelineStatus): StatusDetail['mediaAttachments'] {
   if (!input.media_attachments?.length) {
@@ -19,15 +20,25 @@ function mapMediaAttachments(input: TimelineStatus): StatusDetail['mediaAttachme
 function mapStatus(input: TimelineStatus): StatusDetail {
   return {
     id: input.id,
+    url: input.url ?? null,
+    uri: input.uri,
     content: input.content,
     createdAt: input.created_at,
+    favouritesCount: input.favourites_count,
+    reblogsCount: input.reblogs_count,
+    repliesCount: input.replies_count,
+    favourited: input.favourited,
+    reblogged: input.reblogged,
+    bookmarked: input.bookmarked,
+    emojis: input.emojis,
     mediaAttachments: mapMediaAttachments(input),
     account: {
       id: input.account.id,
       username: input.account.username,
       acct: input.account.acct,
       displayName: input.account.display_name,
-      avatar: input.account.avatar
+      avatar: input.account.avatar,
+      emojis: input.account.emojis ?? [],
     },
     reblog: input.reblog ? mapStatus(input.reblog) : null
   }
@@ -39,10 +50,28 @@ type MastodonStatusContext = {
 }
 
 export default defineEventHandler(async (event): Promise<StatusContextResponse> => {
-  const { accessToken, serverOrigin } = requireRequestCredentials(event)
+  const runtimeConfig = useRuntimeConfig(event)
+  const configuredBase = runtimeConfig.mastodonApiBase || runtimeConfig.public.mastodonApiBase
+  const requestedInstance = getQuery(event).instance
+  let serverOrigin: string
+  let accessToken: string | null
+
+  if (typeof requestedInstance === 'string') {
+    const instance = normalizeMastodonInstance(requestedInstance)
+    if (!instance || !(await isSupportedMastodonInstance(instance.hostname, configuredBase))) {
+      throw createError({ statusCode: 400, statusMessage: 'Unsupported Mastodon instance.' })
+    }
+    serverOrigin = instance.origin
+    const credentials = getOptionalRequestCredentials(event)
+    accessToken = credentials?.serverOrigin === serverOrigin ? credentials.accessToken : null
+  } else {
+    const credentials = requireRequestCredentials(event)
+    serverOrigin = credentials.serverOrigin
+    accessToken = credentials.accessToken
+  }
   const id = getRouterParam(event, 'id')
 
-  if (!id) {
+  if (!id || !/^[\w-]+$/.test(id)) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Missing status id.'
@@ -50,10 +79,10 @@ export default defineEventHandler(async (event): Promise<StatusContextResponse> 
   }
 
   const endpoint = new URL(`/api/v1/statuses/${id}/context`, serverOrigin)
+  const headers: Record<string, string> = {}
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`
   const response = await fetch(endpoint.toString(), {
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
+    headers,
   })
 
   if (!response.ok) {

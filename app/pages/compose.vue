@@ -5,6 +5,6 @@ useSeoMeta({ title: '發文' })
 
 <template>
   <div class="mx-auto max-w-2xl px-4 py-12 text-center lg:mx-0 lg:ml-6">
-    <p class="text-stone-500">發文功能即將上線</p>
+    <p class="text-[var(--text-subtle)]">發文功能即將上線</p>
   </div>
 </template>

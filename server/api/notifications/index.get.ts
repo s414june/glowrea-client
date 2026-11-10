@@ -9,6 +9,7 @@ type RawNotificationAccount = {
   display_name: string
   avatar: string
   url: string
+  emojis?: NotificationItem['account']['emojis']
 }
 
 type RawNotification = {
@@ -48,6 +49,7 @@ function normalizeNotification(raw: RawNotification): NotificationItem | null {
       displayName: raw.account.display_name,
       avatar: raw.account.avatar,
       url: raw.account.url,
+      emojis: raw.account.emojis ?? [],
     },
     status: raw.status,
   }

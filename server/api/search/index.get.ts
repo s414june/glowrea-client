@@ -10,6 +10,7 @@ type RawAccount = {
   avatar: string
   url: string
   note: string
+  emojis?: AccountSummary['emojis']
 }
 
 type RawSearchResponse = {
@@ -27,6 +28,7 @@ function normalizeAccount(raw: RawAccount): AccountSummary {
     avatar: raw.avatar,
     url: raw.url,
     note: raw.note,
+    emojis: raw.emojis ?? [],
   }
 }
 

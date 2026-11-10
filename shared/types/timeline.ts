@@ -10,6 +10,7 @@ export type TimelineAccount = {
   acct: string
   display_name: string
   avatar: string
+  emojis?: CustomEmoji[]
 }
 
 export type TimelineMediaAttachment = {
@@ -22,8 +23,16 @@ export type TimelineMediaAttachment = {
 
 export type TimelineStatus = {
   id: string
+  url?: string | null
+  uri?: string
   content: string
   created_at: string
+  favourites_count?: number
+  reblogs_count?: number
+  replies_count?: number
+  favourited?: boolean
+  reblogged?: boolean
+  bookmarked?: boolean
   emojis?: CustomEmoji[]
   media_attachments?: TimelineMediaAttachment[]
   account: TimelineAccount

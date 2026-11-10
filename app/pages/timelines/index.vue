@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
   <!-- 已登入 → 追蹤時間軸 -->
   <main>
     <section v-if="auth.errorMessage.value" class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-4 pt-4">
-      <p class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+      <p class="mt-3 rounded-xl border border-[var(--border-danger)] bg-[var(--surface-danger)] px-4 py-3 text-sm text-[var(--text-danger)]">
         {{ auth.errorMessage.value }}
       </p>
     </section>

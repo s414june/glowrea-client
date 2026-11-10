@@ -1,4 +1,4 @@
-import type { TimelineStatus } from './timeline'
+import type { CustomEmoji, TimelineStatus } from './timeline'
 
 export type AccountSummary = {
   id: string
@@ -8,6 +8,7 @@ export type AccountSummary = {
   avatar: string
   url: string
   note: string
+  emojis?: CustomEmoji[]
 }
 
 export type HashtagItem = {

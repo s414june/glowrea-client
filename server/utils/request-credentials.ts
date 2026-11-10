@@ -36,3 +36,11 @@ export function requireRequestCredentials(event: H3Event): RequestCredentials {
     accountKey: session.accountKey,
   }
 }
+
+export function getOptionalRequestCredentials(event: H3Event): RequestCredentials | null {
+  try {
+    return requireRequestCredentials(event)
+  } catch {
+    return null
+  }
+}

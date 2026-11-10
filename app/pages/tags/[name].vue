@@ -70,7 +70,7 @@ onBeforeUnmount(() => { observer?.disconnect(); observer = null })
             class="shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50"
             :style="tagInfo?.following
               ? { backgroundColor: 'var(--surface-line)', color: 'var(--text-main)' }
-              : { backgroundColor: 'var(--accent)', color: '#fff' }"
+              : { backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }"
             @click="toggleFollow"
           >
             <span v-if="isFollowLoading">{{ tagInfo?.following ? '取消中…' : '追蹤中…' }}</span>

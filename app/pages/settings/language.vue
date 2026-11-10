@@ -7,7 +7,7 @@ useSeoMeta({ title: '設定' })
     <section class="timeline-card rounded-2xl p-6">
       <p class="text-sm font-medium text-[var(--text-main)] mb-3">介面語言</p>
       <button
-        class="px-4 py-2 rounded-xl text-sm font-medium border bg-[var(--accent)] text-white border-[var(--accent)]"
+        class="px-4 py-2 rounded-xl text-sm font-medium border bg-[var(--accent)] text-[var(--accent-foreground)] border-[var(--accent)]"
         disabled
       >
         繁體中文

@@ -23,6 +23,7 @@ export default defineEventHandler(async (event): Promise<ProfileMeResponse> => {
     displayName: String(raw.display_name ?? ''),
     note: String(raw.note ?? ''),
     avatar: String(raw.avatar ?? ''),
+    emojis: Array.isArray(raw.emojis) ? raw.emojis as ProfileSummary['emojis'] : [],
     header: String(raw.header ?? ''),
     statusesCount: Number(raw.statuses_count ?? 0),
     followingCount: Number(raw.following_count ?? 0),

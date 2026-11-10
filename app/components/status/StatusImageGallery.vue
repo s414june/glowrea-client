@@ -26,7 +26,7 @@ const imageAttachments = computed(() => {
 
 const visibleImages = computed(() => imageAttachments.value.slice(0, props.maxVisible))
 const hiddenCount = computed(() => Math.max(0, imageAttachments.value.length - props.maxVisible))
-const maxCoverRatio = 20 / 9
+const maxCoverRatio = 16 / 9
 const minCoverRatio = 9 / 20
 const resolvedGridClass = computed(() => {
   const base = visibleImages.value.length === 1
@@ -136,26 +136,24 @@ function imageMaskStyle(id: string): Record<string, string> {
 function imageDisplayClass(id: string): string {
   const fitMode = imageFitModes.value[id] || 'cover'
   if (fitMode === 'full') {
-    return 'block w-auto max-w-full !h-auto'
+    return 'block h-auto w-full max-w-full'
   }
 
-  return `${baseImageClass.value} object-cover`
+  return `${baseImageClass.value} h-full w-full object-cover`
 }
 
 function wrapperClass(id: string): string {
-  const fitMode = imageFitModes.value[id] || 'cover'
-  const base = 'relative overflow-hidden rounded-xl border border-stone-200 cursor-pointer flex items-center justify-center'
-  // full mode: shrink-wrap the image and center in cell
-  return `${base} w-fit mx-auto`
+  const base = 'relative overflow-hidden rounded-xl border border-[var(--surface-line)] cursor-pointer flex items-center justify-center'
+  if (imageOverflowDirs.value[id] === 'vertical') return `${base} mx-auto w-fit max-w-full`
+  return `${base} w-full`
 }
 
 function wrapperStyle(id: string): Record<string, string> {
   const dir = imageOverflowDirs.value[id]
   const fullMaxHeightPx = 450
-  const fullMaxWidthPx = fullMaxHeightPx * minCoverRatio
   const mask = wrapperMaskStyle(id)
+  if (dir === 'horizontal') return { ...mask, aspectRatio: '16 / 9' }
   if (dir === 'vertical') return { ...mask, maxHeight: `${fullMaxHeightPx}px` }
-  if (dir === 'horizontal') return { ...mask, maxWidth: `${fullMaxWidthPx}px` }
   return mask
 }
 
@@ -163,8 +161,8 @@ function imageStyle(id: string): Record<string, string> {
   const dir = imageOverflowDirs.value[id]
   const fullMaxHeightPx = 550
   const fullMaxWidthPx = fullMaxHeightPx * minCoverRatio
-  if (dir === 'horizontal') return { maxHeight: `${fullMaxHeightPx}px` }
-  if (dir === 'vertical') return { maxWidth: `${fullMaxWidthPx}px` }
+  if (dir === 'horizontal') return { width: '100%', height: '100%' }
+  if (dir === 'vertical') return { maxWidth: `${fullMaxWidthPx}px`, maxHeight: `${fullMaxHeightPx}px` }
   return {}
 }
 
@@ -200,7 +198,7 @@ watch(imageAttachments, () => {
         :class="imageDisplayClass(media.id)" :style="imageStyle(media.id)" loading="lazy"
         @load="onImageLoad(media.id, media, $event)" @error="onImageError(media.id)">
 
-      <div v-else class="flex h-45 items-center justify-center px-4 text-xs text-stone-500">
+      <div v-else class="flex h-45 items-center justify-center px-4 text-xs text-[var(--text-subtle)]">
         圖片載入失敗
       </div>
 

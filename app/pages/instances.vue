@@ -408,13 +408,13 @@ async function chooseInstance(hostname: string): Promise<void> {
                 />
                 <button
                   type="submit"
-                  class="rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  class="rounded-xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--accent-foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                   :disabled="!customInstance.trim() || isValidatingCustom"
                 >
                   {{ isValidatingCustom ? '驗證中…' : '選擇社群' }}
                 </button>
               </div>
-              <p v-if="customError" class="mt-3 text-sm text-rose-700">{{ customError }}</p>
+              <p v-if="customError" class="mt-3 text-sm text-[var(--text-danger)]">{{ customError }}</p>
             </form>
           </div>
 
@@ -430,7 +430,7 @@ async function chooseInstance(hostname: string): Promise<void> {
               :key="page"
               type="button"
               class="min-w-9 shrink-0 rounded-lg border px-2 py-2 text-sm sm:px-3"
-              :class="currentPage === page ? 'border-[var(--accent)] bg-[var(--accent)] text-white' : 'border-[var(--surface-line)] text-[var(--text-main)] hover:bg-[var(--surface-bg)]'"
+              :class="currentPage === page ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]' : 'border-[var(--surface-line)] text-[var(--text-main)] hover:bg-[var(--surface-bg)]'"
               :aria-current="currentPage === page ? 'page' : undefined"
               @click="currentPage = page"
             >{{ page }}</button>
@@ -439,7 +439,7 @@ async function chooseInstance(hostname: string): Promise<void> {
               v-if="showLastPageTab"
               type="button"
               class="min-w-9 shrink-0 rounded-lg border px-3 py-2 text-sm"
-              :class="currentPage === totalPages ? 'border-[var(--accent)] bg-[var(--accent)] text-white' : 'border-[var(--surface-line)] text-[var(--text-main)] hover:bg-[var(--surface-bg)]'"
+              :class="currentPage === totalPages ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)]' : 'border-[var(--surface-line)] text-[var(--text-main)] hover:bg-[var(--surface-bg)]'"
               :aria-current="currentPage === totalPages ? 'page' : undefined"
               @click="currentPage = totalPages"
             >{{ totalPages }}</button>

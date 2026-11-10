@@ -8,9 +8,9 @@ type StatusDetailState = {
   isRefreshing: Ref<boolean>
   error: Ref<string | null>
   contextError: Ref<string | null>
-  load: (id: string) => Promise<void>
-  refresh: (id: string) => Promise<void>
-  retry: (id: string) => Promise<void>
+  load: (id: string, instance?: string) => Promise<void>
+  refresh: (id: string, instance?: string) => Promise<void>
+  retry: (id: string, instance?: string) => Promise<void>
 }
 
 function normalizeError(error: unknown, fallback: string): string {
@@ -33,7 +33,7 @@ export function useStatusDetail(): StatusDetailState {
   const error = ref<string | null>(null)
   const contextError = ref<string | null>(null)
 
-  async function loadBase(id: string, asRefresh: boolean): Promise<void> {
+  async function loadBase(id: string, asRefresh: boolean, instance?: string): Promise<void> {
     if (asRefresh) {
       if (isRefreshing.value) {
         return
@@ -50,8 +50,8 @@ export function useStatusDetail(): StatusDetailState {
     contextError.value = null
 
     const [statusResult, contextResult] = await Promise.allSettled([
-      fetchStatusDetail(id),
-      fetchStatusContext(id)
+      fetchStatusDetail(id, instance),
+      fetchStatusContext(id, instance)
     ])
 
     if (statusResult.status === 'rejected') {
@@ -82,16 +82,16 @@ export function useStatusDetail(): StatusDetailState {
     }
   }
 
-  function load(id: string): Promise<void> {
-    return loadBase(id, false)
+  function load(id: string, instance?: string): Promise<void> {
+    return loadBase(id, false, instance)
   }
 
-  function refresh(id: string): Promise<void> {
-    return loadBase(id, true)
+  function refresh(id: string, instance?: string): Promise<void> {
+    return loadBase(id, true, instance)
   }
 
-  function retry(id: string): Promise<void> {
-    return load(id)
+  function retry(id: string, instance?: string): Promise<void> {
+    return load(id, instance)
   }
 
   return {

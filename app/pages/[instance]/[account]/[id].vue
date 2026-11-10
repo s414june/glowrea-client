@@ -5,18 +5,8 @@ import ContextList from '~/components/status/ContextList.vue'
 import { useStatusDetail } from '~/composables/useStatusDetail'
 import LoadingSkeleton from '~/components/timeline/LoadingSkeleton.vue'
 
-definePageMeta({
-  middleware: async () => {
-    const auth = useAuth()
-    if (!auth.isAuthenticated.value) {
-      const instance = useInstanceConfig()
-      await instance.ensureHostname()
-      return navigateTo(instance.loginPath.value)
-    }
-  },
-})
-
 const route = useRoute()
+const router = useRouter()
 const {
   status,
   context,
@@ -46,13 +36,23 @@ const statusId = computed(() => {
   return raw.trim()
 })
 
+const statusInstance = computed(() => typeof route.params.instance === 'string' ? route.params.instance : '')
+
+function goBack(): void {
+  if (typeof router.options.history.state.back === 'string') {
+    router.back()
+  } else {
+    void navigateTo('/timelines')
+  }
+}
+
 async function loadCurrentStatus(): Promise<void> {
   if (!statusId.value) {
     error.value = 'Invalid status id.'
     return
   }
 
-  await load(statusId.value)
+  await load(statusId.value, statusInstance.value)
 }
 
 async function retryLoad(): Promise<void> {
@@ -60,7 +60,7 @@ async function retryLoad(): Promise<void> {
     return
   }
 
-  await retry(statusId.value)
+  await retry(statusId.value, statusInstance.value)
 }
 
 async function refreshCurrentStatus(): Promise<void> {
@@ -68,19 +68,19 @@ async function refreshCurrentStatus(): Promise<void> {
     return
   }
 
-  await refresh(statusId.value)
+  await refresh(statusId.value, statusInstance.value)
 }
 
 onMounted(async () => {
   await loadCurrentStatus()
 })
 
-watch(statusId, async (value, previousValue) => {
-  if (!value || value === previousValue) {
+watch([statusId, statusInstance], async ([value, instance], [previousValue, previousInstance]) => {
+  if (!value || (value === previousValue && instance === previousInstance)) {
     return
   }
 
-  await load(value)
+  await load(value, instance)
 })
 </script>
 
@@ -88,14 +88,14 @@ watch(statusId, async (value, previousValue) => {
   <main class="mx-auto w-full max-w-2xl lg:mx-0 lg:ml-6 px-4 pb-6 sm:pb-10">
     <header class="flex items-center justify-between">
       <button
-        class="rounded-xl p-2 text-stone-700 transition-colors hover:bg-stone-200"
+        class="rounded-xl p-2 text-[var(--text-subtle)] transition-colors hover:bg-[var(--surface-hover)] hover:text-[var(--text-main)]"
         aria-label="返回"
-        @click="navigateTo('/timelines')">
+        @click="goBack">
         <ArrowLeft class="h-5 w-5" aria-hidden="true" />
       </button>
 
       <span
-        class="text-sm font-medium text-stone-400">
+        class="text-sm font-medium text-[var(--text-subtle)]">
         {{ isRefreshing ? 'Refreshing...' : '' }}
       </span>
     </header>
@@ -103,11 +103,11 @@ watch(statusId, async (value, previousValue) => {
     <LoadingSkeleton v-if="isLoading && !status" />
 
     <div v-else-if="error && !status" class="timeline-card rounded-2xl p-6 text-center">
-      <p class="text-sm text-rose-700">
+      <p class="text-sm text-[var(--text-danger)]">
         {{ error }}
       </p>
       <button
-        class="mt-4 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+        class="mt-4 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
         @click="retryLoad">
         Retry
       </button>
@@ -117,7 +117,7 @@ watch(statusId, async (value, previousValue) => {
       <DetailCard :status="status" />
 
       <p v-if="contextError"
-        class="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        class="mt-4 rounded-xl border border-[var(--border-warning)] bg-[var(--surface-warning)] px-4 py-3 text-sm text-[var(--text-warning)]">
         {{ contextError }}
       </p>
 

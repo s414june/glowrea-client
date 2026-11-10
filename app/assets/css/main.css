@@ -5,29 +5,43 @@
 @tailwind utilities;
 
 :root {
-	--surface-bg: #f7f4ef;
-	--surface-card: #fffdf9;
-	--surface-line: #e5ddd1;
+	--surface-bg: #f4f4f5;
+	--nav-bg: var(--surface-bg);
+	--surface-card: #ffffff;
+	--surface-line: #e4e4e7;
+	--surface-hover: color-mix(in srgb, var(--surface-bg) 92%, var(--text-main));
 	--text-main: #2f2a24;
 	--text-subtle: #6c6257;
-	--accent: #0e8f7f;
-	--accent-soft: #e2f4f1;
-	--nav-accent: #0e8f7f;
+	--accent: #0891b2;
+	--accent-foreground: #18181b;
+	--text-danger: #be123c;
+	--surface-danger: #fff1f2;
+	--border-danger: #fecdd3;
+	--text-warning: #92400e;
+	--surface-warning: #fffbeb;
+	--border-warning: #fcd34d;
 }
 
 .dark {
-	--surface-bg: #242120;
-	--surface-card: #38322f;
-	--surface-line: #645d57;
+	--surface-bg: #18181b;
+	--nav-bg: var(--surface-bg);
+	--surface-card: #27272a;
+	--surface-line: #3f3f46;
+	--surface-hover: color-mix(in srgb, var(--surface-bg) 92%, var(--text-main));
 	--text-main: #f2eae0;
 	--text-subtle: #e0d7ca;
-	--accent: #11b39f;
-	--accent-soft: #0b2d29;
-	--nav-accent: #11b39f;
+	--accent: #0891b2;
+	--accent-foreground: #18181b;
+	--text-danger: #fda4af;
+	--surface-danger: #4c0519;
+	--border-danger: #881337;
+	--text-warning: #fcd34d;
+	--surface-warning: #451a03;
+	--border-warning: #92400e;
 }
 
 .nav-active {
-	color: var(--nav-accent);
+	color: var(--accent);
 	font-weight: 600;
 }
 
@@ -49,9 +63,9 @@
 }
 
 .home-tab--active {
-	color: var(--nav-accent);
+	color: var(--accent);
 	font-weight: 600;
-	border-bottom-color: var(--nav-accent);
+	border-bottom-color: var(--accent);
 }
 
 .scrollbar-none {
@@ -63,16 +77,10 @@
 
 /* Nav background helpers — respond to dark mode */
 .nav-bg {
-	background-color: #faf7f2;
-}
-.dark .nav-bg {
-	background-color: var(--surface-bg);
+	background-color: var(--nav-bg);
 }
 .nav-bg-blur {
-	background-color: rgba(250, 247, 242, 0.95);
-}
-.dark .nav-bg-blur {
-	background-color: var(--surface-bg);
+	background-color: var(--nav-bg);
 }
 
 html,
@@ -85,10 +93,6 @@ body {
 	margin: 0;
 	font-family: "IBM Plex Sans", sans-serif;
 	color: var(--text-main);
-	/* background:
-    radial-gradient(circle at 20% 10%, #fff7e8 0%, transparent 35%),
-    radial-gradient(circle at 80% 30%, #ecfaf7 0%, transparent 32%),
-    var(--surface-bg); */
 	background-color: var(--surface-bg);
 }
 

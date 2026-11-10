@@ -44,7 +44,7 @@ async function handleLogin(): Promise<void> {
 
       <div class="mt-8 flex flex-wrap items-center gap-3">
         <button
-          class="rounded-xl border border-teal-700 bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-800 disabled:cursor-not-allowed disabled:border-stone-300 disabled:bg-stone-300"
+          class="rounded-xl border border-[var(--accent)] bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--accent-foreground)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:border-[var(--surface-line)] disabled:bg-[var(--surface-line)] disabled:text-[var(--text-subtle)] disabled:hover:brightness-100"
           :disabled="auth.isLoading.value"
           @click="handleLogin"
         >
@@ -52,7 +52,7 @@ async function handleLogin(): Promise<void> {
         </button>
         <NuxtLink
           to="/instances"
-          class="rounded-xl border border-[var(--surface-line)] px-5 py-3 text-sm font-semibold text-[var(--text-main)] transition-colors hover:bg-[var(--surface-line)]"
+          class="rounded-xl border border-[var(--surface-line)] px-5 py-3 text-sm font-semibold text-[var(--text-main)] transition-colors hover:bg-[var(--surface-hover)]"
         >
           切換社群
         </NuxtLink>
@@ -60,7 +60,7 @@ async function handleLogin(): Promise<void> {
 
       <p
         v-if="auth.errorMessage.value"
-        class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+        class="mt-4 rounded-xl border border-[var(--border-danger)] bg-[var(--surface-danger)] px-4 py-3 text-sm text-[var(--text-danger)]"
       >
         {{ auth.errorMessage.value }}
       </p>

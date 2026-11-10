@@ -1,6 +1,6 @@
 import type { ProfileSummary } from '#shared/types/profile'
 import type { TimelineStatus } from '#shared/types/timeline'
-import { fetchProfileMe, fetchProfileStatuses } from '~/utils/api/profile'
+import { fetchAccountProfile, fetchAccountStatuses, fetchProfileMe, fetchProfileStatuses } from '~/utils/api/profile'
 
 export type ProfileTab = 'posts' | 'replies' | 'media'
 
@@ -11,6 +11,11 @@ type TabState = {
   loadMoreError: Ref<string | null>
   hasMore: ComputedRef<boolean>
   isEmpty: ComputedRef<boolean>
+}
+
+export type PublicProfileTarget = {
+  instance: string
+  account: string
 }
 
 function normalizeError(error: unknown): string {
@@ -38,8 +43,9 @@ function makeTabState(isLoading: Ref<boolean>): TabState {
   return { items, nextMaxId, isLoadingMore, loadMoreError, hasMore, isEmpty }
 }
 
-export function useProfilePage(initialTab: ProfileTab = 'posts') {
+export function useProfilePage(initialTab: ProfileTab = 'posts', publicTarget?: PublicProfileTarget) {
   const profile = ref<ProfileSummary | null>(null)
+  const pinnedItems = ref<TimelineStatus[]>([])
   const activeTab = ref<ProfileTab>(initialTab)
 
   const isInitialLoading = ref(false)
@@ -63,6 +69,17 @@ export function useProfilePage(initialTab: ProfileTab = 'posts') {
   const isLoadingMore = computed(() => currentTab.value.isLoadingMore.value)
   const loadMoreError = computed(() => currentTab.value.loadMoreError.value)
 
+  async function loadPinnedStatuses(): Promise<void> {
+    try {
+      const response = publicTarget
+        ? await fetchAccountStatuses(publicTarget.instance, profile.value?.id || '', { pinned: true })
+        : await fetchProfileStatuses({ pinned: true })
+      pinnedItems.value = response.items
+    } catch {
+      pinnedItems.value = []
+    }
+  }
+
   async function fetchTab(tab: ProfileTab, maxId?: string): Promise<void> {
     const state = tab === 'replies' ? repliesTab : tab === 'media' ? mediaTab : postsTab
     const options = tab === 'posts'
@@ -71,11 +88,17 @@ export function useProfilePage(initialTab: ProfileTab = 'posts') {
         ? { maxId, onlyMedia: true }
         : { maxId }
 
-    const response = await fetchProfileStatuses(options)
+    const response = publicTarget
+      ? await fetchAccountStatuses(publicTarget.instance, profile.value?.id || '', options)
+      : await fetchProfileStatuses(options)
+
+    const regularItems = tab === 'posts'
+      ? response.items.filter((item) => !pinnedItems.value.some((pinned) => pinned.id === item.id))
+      : response.items
 
     if (tab === 'replies') {
       // Client-side filter: only keep posts that are replies
-      const replyItems = response.items.filter((s) => Boolean((s as TimelineStatus & { in_reply_to_id?: string | null }).in_reply_to_id))
+      const replyItems = regularItems.filter((s) => Boolean((s as TimelineStatus & { in_reply_to_id?: string | null }).in_reply_to_id))
       if (maxId) {
         state.items.value = mergeUniqueById(state.items.value, replyItems)
       } else {
@@ -83,9 +106,9 @@ export function useProfilePage(initialTab: ProfileTab = 'posts') {
       }
     } else {
       if (maxId) {
-        state.items.value = mergeUniqueById(state.items.value, response.items)
+        state.items.value = mergeUniqueById(state.items.value, regularItems)
       } else {
-        state.items.value = response.items
+        state.items.value = regularItems
       }
     }
     state.nextMaxId.value = response.nextMaxId
@@ -97,11 +120,16 @@ export function useProfilePage(initialTab: ProfileTab = 'posts') {
     initialError.value = null
 
     try {
-      const [meResponse] = await Promise.all([
-        fetchProfileMe(),
-        fetchTab(activeTab.value),
-      ])
-      profile.value = meResponse.profile
+      if (publicTarget) {
+        const profileResponse = await fetchAccountProfile(publicTarget.instance, publicTarget.account)
+        profile.value = profileResponse.profile
+        await loadPinnedStatuses()
+        await fetchTab(activeTab.value)
+      } else {
+        const [meResponse] = await Promise.all([fetchProfileMe(), loadPinnedStatuses()])
+        profile.value = meResponse.profile
+        await fetchTab(activeTab.value)
+      }
     } catch (error: unknown) {
       initialError.value = normalizeError(error)
     } finally {
@@ -114,6 +142,7 @@ export function useProfilePage(initialTab: ProfileTab = 'posts') {
     if (state.items.value.length > 0 || isInitialLoading.value) return
     isInitialLoading.value = true
     try {
+      if (tab === 'posts' && pinnedItems.value.length === 0) await loadPinnedStatuses()
       await fetchTab(tab)
     } catch (error: unknown) {
       initialError.value = normalizeError(error)
@@ -141,11 +170,16 @@ export function useProfilePage(initialTab: ProfileTab = 'posts') {
     isRefreshing.value = true
     initialError.value = null
     try {
-      const [meResponse] = await Promise.all([
-        fetchProfileMe(),
-        fetchTab(activeTab.value),
-      ])
-      profile.value = meResponse.profile
+      if (publicTarget) {
+        const profileResponse = await fetchAccountProfile(publicTarget.instance, publicTarget.account)
+        profile.value = profileResponse.profile
+        await loadPinnedStatuses()
+        await fetchTab(activeTab.value)
+      } else {
+        const [meResponse] = await Promise.all([fetchProfileMe(), loadPinnedStatuses()])
+        profile.value = meResponse.profile
+        await fetchTab(activeTab.value)
+      }
     } catch (error: unknown) {
       initialError.value = normalizeError(error)
     } finally {
@@ -159,6 +193,7 @@ export function useProfilePage(initialTab: ProfileTab = 'posts') {
 
   return {
     profile,
+    pinnedItems,
     activeTab,
     loadTabIfEmpty,
     items,

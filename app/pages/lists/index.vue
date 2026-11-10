@@ -22,7 +22,7 @@ onMounted(() => loadLists())
     <div v-else-if="error" class="timeline-card rounded-2xl p-8 text-center">
       <p class="mb-4 text-sm" :style="{ color: 'var(--text-subtle)' }">{{ error }}</p>
       <button
-        class="rounded-lg px-4 py-2 text-sm font-medium text-white"
+        class="rounded-lg px-4 py-2 text-sm font-medium text-[var(--accent-foreground)]"
         :style="{ backgroundColor: 'var(--accent)' }"
         @click="loadLists"
       >重試</button>

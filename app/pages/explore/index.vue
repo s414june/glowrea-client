@@ -11,8 +11,8 @@ const explore = useExplore()
     <LoadingSkeleton v-if="explore.isSearching.value" />
 
     <div v-else-if="explore.searchError.value" class="timeline-card rounded-2xl p-6 text-center">
-      <p class="text-sm text-rose-700">{{ explore.searchError.value }}</p>
-      <button class="mt-4 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50" @click="explore.search">重試</button>
+      <p class="text-sm text-[var(--text-danger)]">{{ explore.searchError.value }}</p>
+      <button class="mt-4 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]" @click="explore.search">重試</button>
     </div>
 
     <template v-else-if="explore.searchResults.value">

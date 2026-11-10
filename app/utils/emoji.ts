@@ -18,6 +18,17 @@ export function resolveCustomEmoji(content: string, emojis: CustomEmoji[]): stri
     if (!emoji) return match
     if (!emoji.url.startsWith('https://')) return match
 
-    return `<img src="${emoji.url}" alt=":${code}:" title=":${code}:" class="custom-emoji" loading="lazy" />`
+    const safeUrl = emoji.url.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+    return `<img src="${safeUrl}" alt=":${code}:" title=":${code}:" class="custom-emoji" loading="lazy" />`
   })
+}
+
+export function resolveCustomEmojiText(text: string, emojis: CustomEmoji[]): string {
+  const escaped = text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+  return resolveCustomEmoji(escaped, emojis)
 }

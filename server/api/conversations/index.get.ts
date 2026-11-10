@@ -8,6 +8,7 @@ type RawAccount = {
   acct: string
   display_name: string
   avatar: string
+  emojis?: ConversationAccount['emojis']
 }
 
 type RawConversation = {
@@ -34,6 +35,7 @@ function normalizeAccount(raw: RawAccount): ConversationAccount {
     acct: raw.acct,
     displayName: raw.display_name,
     avatar: raw.avatar,
+    emojis: raw.emojis ?? [],
   }
 }
 

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { TimelineStatus } from '#shared/types/timeline'
-import { resolveCustomEmoji } from '~/utils/emoji'
+import { resolveCustomEmoji, resolveCustomEmojiText } from '~/utils/emoji'
 import StatusImageGallery from '~/components/status/StatusImageGallery.vue'
+import StatusActions from '~/components/status/StatusActions.vue'
 import { Repeat2 } from 'lucide-vue-next'
 
 const props = defineProps<{
@@ -17,13 +18,7 @@ const authorName = computed(() => {
 
 const authorHandle = computed(() => `@${activeStatus.value.account.acct || activeStatus.value.account.username}`)
 
-const boostedBy = computed(() => {
-  if (!props.status.reblog) {
-    return null
-  }
-
-  return `@${props.status.account.acct || props.status.account.username}`
-})
+const boostedAccount = computed(() => props.status.reblog ? props.status.account : null)
 
 const formattedTime = computed(() => {
   return new Intl.DateTimeFormat('zh-TW', {
@@ -49,6 +44,7 @@ const renderedContent = computed(() =>
 )
 
 const { openStatus } = useStatusNavigation()
+const { profilePath } = useAccountNavigation()
 
 function shouldSkipCardNavigation(event: MouseEvent | KeyboardEvent): boolean {
   if (!(event.target instanceof Element)) {
@@ -69,25 +65,31 @@ async function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
 </script>
 
 <template>
-  <article class="timeline-card cursor-pointer rounded-2xl p-4 transition-transform duration-200" role="button"
+  <article class="timeline-card relative cursor-pointer rounded-2xl p-4 pb-2 transition-transform duration-200" role="button"
     tabindex="0" @click="openDetail($event)" @keydown.enter.prevent="openDetail($event)" @keydown.space.prevent="openDetail($event)">
-    <p v-if="boostedBy" class="mb-2 flex items-center gap-1 text-xs font-medium text-[var(--accent)]">
+    <p v-if="boostedAccount" class="mb-2 flex items-center gap-1 text-xs font-medium text-[var(--accent)]">
       <Repeat2 class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-      {{ boostedBy }}
+      由
+      <NuxtLink :to="profilePath(boostedAccount)" class="hover:underline" @click.stop>
+        @{{ boostedAccount.acct || boostedAccount.username }}
+      </NuxtLink>
+      轉發
     </p>
 
     <div class="flex items-start gap-3">
-      <img :src="activeStatus.account.avatar" :alt="authorName"
-        class="h-10 w-10 rounded-full border border-stone-200 object-cover">
+      <NuxtLink :to="profilePath(activeStatus.account)" class="shrink-0" :aria-label="`${authorName} 的個人頁`" @click.stop>
+        <img :src="activeStatus.account.avatar" :alt="authorName"
+          class="h-10 w-10 rounded-full border border-[var(--surface-line)] object-cover">
+      </NuxtLink>
 
       <div class="min-w-0 flex-1">
         <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <p class="min-w-0 truncate font-semibold text-[var(--text-main)]">
-            {{ authorName }}
-          </p>
-          <p class="min-w-0 truncate text-sm text-[var(--text-subtle)]">
+          <NuxtLink :to="profilePath(activeStatus.account)" class="min-w-0 truncate font-semibold text-[var(--text-main)] hover:underline" @click.stop>
+            <span v-html="resolveCustomEmojiText(authorName, activeStatus.account.emojis ?? [])" />
+          </NuxtLink>
+          <NuxtLink :to="profilePath(activeStatus.account)" class="min-w-0 truncate text-sm text-[var(--text-subtle)] hover:underline" @click.stop>
             {{ authorHandle }}
-          </p>
+          </NuxtLink>
           <p class="shrink-0 text-sm text-[var(--text-subtle)]">
             • {{ formattedTime }}
           </p>
@@ -102,5 +104,6 @@ async function openDetail(event: MouseEvent | KeyboardEvent): Promise<void> {
         </div>
       </div>
     </div>
+    <StatusActions :status="activeStatus" />
   </article>
 </template>

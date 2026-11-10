@@ -1,3 +1,5 @@
+import type { CustomEmoji } from './timeline'
+
 export type ProfileSummary = {
   id: string
   username: string
@@ -5,6 +7,7 @@ export type ProfileSummary = {
   displayName: string
   note: string
   avatar: string
+  emojis?: CustomEmoji[]
   header: string
   statusesCount: number
   followingCount: number

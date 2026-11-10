@@ -41,8 +41,5 @@ if (auth.isAuthenticated.value && auth.serverOrigin.value) {
     </div>
   </div>
 
-  <!-- 補足 fixed tab nav 推走的空間（僅手機） -->
-  <div class="h-12 lg:hidden" />
-
   <NuxtPage :keepalive="true" />
 </template>

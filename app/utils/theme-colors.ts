@@ -1,0 +1,164 @@
+export type ThemeColorOption = {
+  key: string
+  label: string
+  value: string
+  backgroundValue?: string
+  cardValue?: string
+  lineValue?: string
+}
+
+const colorFamilies: Record<string, Record<number, string>> = {
+  red: { 50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca', 400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c', 800: '#991b1b' },
+  orange: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412' },
+  amber: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', 800: '#92400e' },
+  yellow: { 50: '#fefce8', 100: '#fef9c3', 200: '#fef08a', 400: '#facc15', 500: '#eab308', 600: '#ca8a04', 700: '#a16207', 800: '#854d0e' },
+  lime: { 50: '#f7fee7', 100: '#ecfccb', 200: '#d9f99d', 400: '#a3e635', 500: '#84cc16', 600: '#65a30d', 700: '#4d7c0f', 800: '#3f6212' },
+  green: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534' },
+  emerald: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46' },
+  teal: { 50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 800: '#115e59' },
+  cyan: { 50: '#ecfeff', 100: '#cffafe', 200: '#a5f3fc', 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2', 700: '#0e7490', 800: '#155e75' },
+  sky: { 50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985' },
+  blue: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af' },
+  indigo: { 50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3' },
+  violet: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#5b21b6' },
+  purple: { 50: '#faf5ff', 100: '#f3e8ff', 200: '#e9d5ff', 400: '#c084fc', 500: '#a855f7', 600: '#9333ea', 700: '#7e22ce', 800: '#6b21a8' },
+  fuchsia: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 400: '#e879f9', 500: '#d946ef', 600: '#c026d3', 700: '#a21caf', 800: '#86198f' },
+  pink: { 50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d', 800: '#9d174d' },
+  rose: { 50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 400: '#fb7185', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c', 800: '#9f1239' },
+  slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' },
+  gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151', 800: '#1f2937', 900: '#111827', 950: '#030712' },
+  zinc: { 50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 400: '#a1a1aa', 500: '#71717a', 600: '#52525b', 700: '#3f3f46', 800: '#27272a', 900: '#18181b', 950: '#09090b' },
+  neutral: { 50: '#fafafa', 100: '#f5f5f5', 200: '#e5e5e5', 400: '#a3a3a3', 500: '#737373', 600: '#525252', 700: '#404040', 800: '#262626', 900: '#171717', 950: '#0a0a0a' },
+  stone: { 50: '#fafaf9', 100: '#f5f5f4', 200: '#e7e5e4', 400: '#a8a29e', 500: '#78716c', 600: '#57534e', 700: '#44403c', 800: '#292524', 900: '#1c1917', 950: '#0c0a09' },
+  taupe: {
+    50: 'oklch(98.6% 0.002 67.8)', 100: 'oklch(96% 0.002 17.2)', 200: 'oklch(92.2% 0.005 34.3)', 400: 'oklch(71.4% 0.014 41.2)',
+    500: 'oklch(54.7% 0.021 43.1)', 600: 'oklch(43.8% 0.017 39.3)', 700: 'oklch(36.7% 0.016 35.7)',
+    800: 'oklch(26.8% 0.011 36.5)', 900: 'oklch(21.4% 0.009 43.1)', 950: 'oklch(14.7% 0.004 49.3)',
+  },
+  mauve: {
+    50: 'oklch(98.5% 0 none)', 100: 'oklch(96% 0.003 325.6)', 200: 'oklch(92.2% 0.005 325.62)', 400: 'oklch(71.1% 0.019 323.02)',
+    500: 'oklch(54.2% 0.034 322.5)', 600: 'oklch(43.5% 0.029 321.78)', 700: 'oklch(36.4% 0.029 323.89)',
+    800: 'oklch(26.3% 0.024 320.12)', 900: 'oklch(21.2% 0.019 322.12)', 950: 'oklch(14.5% 0.008 326)',
+  },
+  mist: {
+    50: 'oklch(98.7% 0.002 197.1)', 100: 'oklch(96.3% 0.002 197.1)', 200: 'oklch(92.5% 0.005 214.3)', 400: 'oklch(72.3% 0.014 214.4)',
+    500: 'oklch(56% 0.021 213.5)', 600: 'oklch(45% 0.017 213.2)', 700: 'oklch(37.8% 0.015 216)',
+    800: 'oklch(27.5% 0.011 216.9)', 900: 'oklch(21.8% 0.008 223.9)', 950: 'oklch(14.8% 0.004 228.8)',
+  },
+  olive: {
+    50: 'oklch(98.8% 0.003 106.5)', 100: 'oklch(96.6% 0.005 106.5)', 200: 'oklch(93% 0.007 106.5)', 400: 'oklch(73.7% 0.021 106.9)',
+    500: 'oklch(58% 0.031 107.3)', 600: 'oklch(46.6% 0.025 107.3)', 700: 'oklch(39.4% 0.023 107.4)',
+    800: 'oklch(28.6% 0.016 107.4)', 900: 'oklch(22.8% 0.013 107.4)', 950: 'oklch(15.3% 0.006 107.1)',
+  },
+}
+
+const hueNames = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose']
+const grayNames = ['slate', 'gray', 'zinc', 'neutral', 'stone', 'taupe', 'mauve', 'mist', 'olive']
+
+function makeOptions(families: string[], shades: number[]): ThemeColorOption[] {
+  return families.flatMap((family) => shades.flatMap((shade) => {
+    const value = colorFamilies[family]?.[shade]
+    return value ? [{ key: `${family}-${shade}`, label: `${family} ${shade}`, value }] : []
+  }))
+}
+
+export const DEFAULT_ACCENT_COLOR = colorFamilies.cyan![600]!
+export const DEFAULT_LIGHT_BACKGROUND = colorFamilies.zinc![100]!
+export const DEFAULT_DARK_BACKGROUND = colorFamilies.zinc![900]!
+export const DEFAULT_LIGHT_BACKGROUND_SELECTION = 'zinc-50'
+export const DEFAULT_DARK_BACKGROUND_SELECTION = 'zinc-800'
+
+export function accentForegroundColor(color: string): string {
+  const oklchLightness = color.match(/^oklch\(([\d.]+)%/)?.[1]
+  if (oklchLightness) return Number(oklchLightness) > 54 ? '#18181b' : '#ffffff'
+
+  const normalized = color.trim().replace(/^#/, '')
+  if (!/^(?:[\da-f]{3}|[\da-f]{6})$/i.test(normalized)) return '#ffffff'
+  const full = normalized.length === 3 ? [...normalized].map(part => `${part}${part}`).join('') : normalized
+  const channels = [0, 2, 4].map(index => Number.parseInt(full.slice(index, index + 2), 16) / 255)
+  const luminance = channels
+    .map(channel => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4)
+    .reduce((sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index]!, 0)
+  const whiteContrast = 1.05 / (luminance + 0.05)
+  const blackContrast = (luminance + 0.05) / 0.05
+  return whiteContrast >= blackContrast ? '#ffffff' : '#18181b'
+}
+
+function makeBackgroundOptions(
+  families: string[],
+  shades: number[],
+  nextShade: (shade: number) => number,
+  cardShade: (shade: number) => number | null,
+  lineShade: (shade: number) => number,
+): ThemeColorOption[] {
+  return families.flatMap((family) => shades.flatMap((shade) => {
+    const value = colorFamilies[family]?.[shade]
+    const backgroundValue = colorFamilies[family]?.[nextShade(shade)]
+    const cardValue = cardShade(shade) === null ? '#ffffff' : colorFamilies[family]?.[cardShade(shade)!]
+    const lineValue = colorFamilies[family]?.[lineShade(shade)]
+    return value ? [{
+      key: `${family}-${shade}`,
+      label: `${family} ${shade}`,
+      value,
+      backgroundValue: backgroundValue || value,
+      cardValue: cardValue || value,
+      lineValue: lineValue || value,
+    }] : []
+  }))
+}
+
+export const accentColorOptions = [
+  ...makeOptions(hueNames, [400, 500, 600, 700, 800]),
+  ...makeOptions(grayNames, [400, 500, 600, 700]),
+]
+
+export const lightBackgroundOptions: ThemeColorOption[] = [
+  { key: 'white', label: '純白', value: '#ffffff', backgroundValue: '#ffffff', cardValue: '#ffffff', lineValue: colorFamilies.zinc![200]! },
+  ...makeBackgroundOptions(hueNames, [50], () => 100, () => null, () => 200),
+  ...makeBackgroundOptions(grayNames, [50, 100], shade => shade === 50 ? 100 : 200, shade => shade === 50 ? null : 50, shade => shade === 50 ? 200 : 400),
+]
+
+export const darkBackgroundOptions: ThemeColorOption[] = [
+  ...makeBackgroundOptions(grayNames, [800, 900], shade => shade === 800 ? 900 : 950, shade => shade, shade => shade - 100),
+]
+
+export function resolveLightBackgroundColor(selection: string): string {
+  return lightBackgroundOptions.find(option => option.key === selection)?.backgroundValue
+    || lightBackgroundOptions.find(option => option.value === selection)?.backgroundValue
+    || selection
+}
+
+export function resolveLightSurfaceColors(selection: string): { background: string; card: string; line: string } | undefined {
+  const option = lightBackgroundOptions.find(item => item.key === selection)
+    || lightBackgroundOptions.find(item => item.value === selection)
+  return option?.backgroundValue && option.cardValue && option.lineValue
+    ? { background: option.backgroundValue, card: option.cardValue, line: option.lineValue }
+    : undefined
+}
+
+export function normalizeLightBackgroundSelection(selection: string): string {
+  return lightBackgroundOptions.find(option => option.key === selection)?.key
+    || lightBackgroundOptions.find(option => option.value === selection)?.key
+    || selection
+}
+
+export function resolveDarkBackgroundColor(selection: string): string {
+  return darkBackgroundOptions.find(option => option.key === selection)?.backgroundValue
+    || darkBackgroundOptions.find(option => option.value === selection)?.backgroundValue
+    || selection
+}
+
+export function resolveDarkSurfaceColors(selection: string): { background: string; card: string; line: string } | undefined {
+  const option = darkBackgroundOptions.find(item => item.key === selection)
+    || darkBackgroundOptions.find(item => item.value === selection)
+  return option?.backgroundValue && option.cardValue && option.lineValue
+    ? { background: option.backgroundValue, card: option.cardValue, line: option.lineValue }
+    : undefined
+}
+
+export function normalizeDarkBackgroundSelection(selection: string): string {
+  if (selection === 'black' || selection.toLowerCase() === '#000000') return DEFAULT_DARK_BACKGROUND_SELECTION
+  return darkBackgroundOptions.find(option => option.key === selection)?.key
+    || darkBackgroundOptions.find(option => option.value === selection)?.key
+    || selection
+}

@@ -22,7 +22,7 @@ const { showScrollTop, scrollToTop } = useScrollBehavior()
     >
       <button
         v-if="showScrollTop"
-        class="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--surface-line)] nav-bg-blur text-[var(--text-subtle)] shadow-md backdrop-blur transition-colors hover:bg-[var(--surface-line)] hover:text-[var(--text-main)]"
+        class="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--surface-line)] nav-bg-blur text-[var(--text-subtle)] shadow-md backdrop-blur transition-colors hover:bg-[var(--surface-hover)] hover:text-[var(--text-main)]"
         title="跳到最上"
         aria-label="跳到最上"
         @click="scrollToTop"

@@ -2,6 +2,7 @@
 import LoadingSkeleton from '~/components/timeline/LoadingSkeleton.vue'
 import { useNotifications } from '~/composables/useNotifications'
 import type { NotificationItem } from '#shared/types/notification'
+import { resolveCustomEmojiText } from '~/utils/emoji'
 
 useSeoMeta({ title: '通知' })
 
@@ -18,6 +19,7 @@ const {
   retryInitial,
 } = useNotifications()
 const { openStatus } = useStatusNavigation()
+const { profilePath } = useAccountNavigation()
 
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
@@ -79,9 +81,9 @@ function stripHtml(html: string): string {
       v-else-if="initialError"
       class="timeline-card rounded-2xl p-6 text-center"
     >
-      <p class="text-sm text-rose-700">{{ initialError }}</p>
+      <p class="text-sm text-[var(--text-danger)]">{{ initialError }}</p>
       <button
-        class="mt-4 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+        class="mt-4 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
         @click="retryInitial"
       >
         重試
@@ -97,26 +99,28 @@ function stripHtml(html: string): string {
     </div>
 
     <!-- List -->
-    <div v-else class="space-y-2 px-2">
+    <div v-else class="space-y-2">
       <article
         v-for="item in items"
         :key="item.id"
         class="timeline-card rounded-2xl p-4"
       >
         <div class="flex items-start gap-3">
-          <img
-            :src="item.account.avatar"
-            :alt="`${item.account.displayName} 的頭像`"
-            class="h-10 w-10 flex-shrink-0 rounded-full object-cover"
-          />
+          <NuxtLink :to="profilePath(item.account)" class="shrink-0" :aria-label="`${item.account.displayName || item.account.username} 的個人頁`">
+            <img
+              :src="item.account.avatar"
+              :alt="`${item.account.displayName} 的頭像`"
+              class="h-10 w-10 rounded-full object-cover"
+            />
+          </NuxtLink>
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-baseline gap-x-1">
-              <span class="font-semibold text-sm text-[var(--text-main)] truncate">
-                {{ item.account.displayName || item.account.username }}
-              </span>
-              <span class="text-xs text-[var(--text-subtle)] truncate">
+              <NuxtLink :to="profilePath(item.account)" class="truncate text-sm font-semibold text-[var(--text-main)] hover:underline">
+                <span v-html="resolveCustomEmojiText(item.account.displayName || item.account.username, item.account.emojis ?? [])" />
+              </NuxtLink>
+              <NuxtLink :to="profilePath(item.account)" class="truncate text-xs text-[var(--text-subtle)] hover:underline">
                 @{{ item.account.acct }}
-              </span>
+              </NuxtLink>
             </div>
             <p class="mt-0.5 text-sm text-[var(--text-subtle)]">
               {{ actionLabel[item.type] }}
@@ -142,9 +146,9 @@ function stripHtml(html: string): string {
 
       <!-- Load more error -->
       <div v-if="loadMoreError" class="timeline-card rounded-2xl p-4 text-center">
-        <p class="text-sm text-rose-700">{{ loadMoreError }}</p>
+        <p class="text-sm text-[var(--text-danger)]">{{ loadMoreError }}</p>
         <button
-          class="mt-3 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+          class="mt-3 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
           @click="loadMore"
         >
           重試載入更多

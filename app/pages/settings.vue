@@ -32,8 +32,5 @@ const headerVisible = useState<boolean>('header-visible', () => true)
     </div>
   </div>
 
-  <!-- 補足 fixed tab nav 推走的空間（僅手機） -->
-  <div class="h-12 lg:hidden" />
-
   <NuxtPage />
 </template>

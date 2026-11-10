@@ -2,6 +2,7 @@
 import LoadingSkeleton from '~/components/timeline/LoadingSkeleton.vue'
 import { useConversations } from '~/composables/useConversations'
 import type { ConversationItem } from '#shared/types/conversation'
+import { resolveCustomEmojiText } from '~/utils/emoji'
 
 useSeoMeta({ title: '私人' })
 
@@ -18,6 +19,7 @@ const {
   retryInitial,
 } = useConversations()
 const { openStatus } = useStatusNavigation()
+const { profilePath } = useAccountNavigation()
 
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
@@ -70,9 +72,9 @@ function relativeTime(iso: string): string {
 
     <!-- Error -->
     <div v-else-if="initialError" class="timeline-card rounded-2xl p-6 text-center mx-2">
-      <p class="text-sm text-rose-700">{{ initialError }}</p>
+      <p class="text-sm text-[var(--text-danger)]">{{ initialError }}</p>
       <button
-        class="mt-4 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+        class="mt-4 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
         @click="retryInitial"
       >
         重試
@@ -85,7 +87,7 @@ function relativeTime(iso: string): string {
     </div>
 
     <!-- List -->
-    <div v-else class="space-y-2 px-2">
+    <div v-else class="space-y-2">
       <article
         v-for="item in items"
         :key="item.id"
@@ -93,12 +95,13 @@ function relativeTime(iso: string): string {
       >
         <!-- 未讀圓點 -->
         <div class="relative flex-shrink-0 mt-0.5">
-          <img
-            v-if="participant(item)"
-            :src="participant(item)!.avatar"
-            :alt="`${participant(item)!.displayName || participant(item)!.username} 的頭像`"
-            class="h-10 w-10 rounded-full object-cover"
-          />
+          <NuxtLink v-if="participant(item)" :to="profilePath(participant(item)!)" class="block" :aria-label="`${participant(item)!.displayName || participant(item)!.username} 的個人頁`">
+            <img
+              :src="participant(item)!.avatar"
+              :alt="`${participant(item)!.displayName || participant(item)!.username} 的頭像`"
+              class="h-10 w-10 rounded-full object-cover"
+            />
+          </NuxtLink>
           <span
             v-if="item.unread"
             class="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-[var(--accent)] ring-2 ring-[var(--surface-card)]"
@@ -109,12 +112,13 @@ function relativeTime(iso: string): string {
         <div class="min-w-0 flex-1">
           <div class="flex items-baseline justify-between gap-2">
             <div class="flex flex-wrap items-baseline gap-x-1 min-w-0">
-              <span class="font-semibold text-sm text-[var(--text-main)] truncate">
-                {{ participant(item)?.displayName || participant(item)?.username || '未知使用者' }}
-              </span>
-              <span v-if="participant(item)" class="text-xs text-[var(--text-subtle)] truncate">
+              <NuxtLink v-if="participant(item)" :to="profilePath(participant(item)!)" class="truncate text-sm font-semibold text-[var(--text-main)] hover:underline">
+                <span v-if="participant(item)" v-html="resolveCustomEmojiText(participant(item)!.displayName || participant(item)!.username, participant(item)!.emojis ?? [])" />
+                <span v-else>未知使用者</span>
+              </NuxtLink>
+              <NuxtLink v-if="participant(item)" :to="profilePath(participant(item)!)" class="truncate text-xs text-[var(--text-subtle)] hover:underline">
                 @{{ participant(item)!.acct }}
-              </span>
+              </NuxtLink>
             </div>
             <span v-if="item.lastStatus" class="flex-shrink-0 text-xs text-[var(--text-subtle)]">
               {{ relativeTime(item.lastStatus.created_at) }}
@@ -142,9 +146,9 @@ function relativeTime(iso: string): string {
 
       <!-- Load more error -->
       <div v-if="loadMoreError" class="timeline-card rounded-2xl p-4 text-center">
-        <p class="text-sm text-rose-700">{{ loadMoreError }}</p>
+        <p class="text-sm text-[var(--text-danger)]">{{ loadMoreError }}</p>
         <button
-          class="mt-3 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+          class="mt-3 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
           @click="loadMore"
         >
           重試載入更多

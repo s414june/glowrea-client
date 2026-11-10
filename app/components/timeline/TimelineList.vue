@@ -28,11 +28,11 @@ defineEmits<{
     <LoadingSkeleton v-if="(isInitialLoading || isRefreshing) && items.length === 0" />
 
     <div v-else-if="initialError && items.length === 0" class="timeline-card rounded-2xl p-6 text-center">
-      <p class="text-sm text-rose-700">
+      <p class="text-sm text-[var(--text-danger)]">
         {{ initialError }}
       </p>
       <button
-        class="mt-4 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+        class="mt-4 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
         @click="$emit('retryInitial')">
         Retry
       </button>
@@ -47,16 +47,16 @@ defineEmits<{
     <div v-else class="space-y-3">
       <StatusItem v-for="item in items" :key="item.id" :status="item" />
 
-      <div v-if="isLoadingMore" class="py-3 text-center text-sm text-stone-500">
+      <div v-if="isLoadingMore" class="py-3 text-center text-sm text-[var(--text-subtle)]">
         載入更多中...
       </div>
 
       <div v-if="loadMoreError" class="timeline-card rounded-2xl p-4 text-center">
-        <p class="text-sm text-rose-700">
+        <p class="text-sm text-[var(--text-danger)]">
           {{ loadMoreError }}
         </p>
         <button
-          class="mt-3 rounded-xl border border-rose-600 px-3 py-2 text-sm font-medium text-rose-700 transition-colors hover:bg-rose-50"
+          class="mt-3 rounded-xl border border-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent)] transition-colors hover:bg-[var(--surface-hover)]"
           @click="$emit('retryLoadMore')">
           重試載入更多
         </button>
@@ -64,7 +64,7 @@ defineEmits<{
 
       <slot name="after-list" />
 
-      <p v-if="!hasMore && items.length > 0" class="py-2 text-center text-xs text-stone-400">
+      <p v-if="!hasMore && items.length > 0" class="py-2 text-center text-xs text-[var(--text-subtle)]">
         已經到底了
       </p>
     </div>

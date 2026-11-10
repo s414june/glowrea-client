@@ -55,7 +55,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
         :class="headerVisible ? 'translate-y-0' : '-translate-y-full'">
         <div class="mx-auto flex w-full max-w-2xl items-center justify-between">
           <button
-            class="headline-font flex items-center gap-2 rounded-xl px-3 text-md font-semibold text-[var(--nav-accent)]"
+            class="headline-font flex items-center gap-2 rounded-xl px-3 text-md font-semibold text-[var(--accent)]"
             title="回到首頁並刷新" aria-label="回到首頁並刷新" @click="goHomeAndRefreshTimeline">
             <GlowreaLogo class="h-10 w-10" />
             <span>Glowrea</span>
@@ -115,7 +115,7 @@ async function goHomeAndRefreshTimeline(): Promise<void> {
             <NuxtLink v-else :to="item.to" :title="item.label" :aria-label="item.label"
               class="flex items-center justify-center rounded-xl px-2 py-2 transition-colors" :class="isActive(item.to)
                 ? 'nav-active'
-                : 'text-[var(--text-subtle)] hover:bg-[var(--surface-line)] hover:text-[var(--text-main)]'"
+                : 'text-[var(--text-subtle)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-main)]'"
               @click="handleNavClick(item)">
               <component :is="navigationIcons[item.icon]" class="h-5 w-5" aria-hidden="true" />
               <span class="sr-only">{{ item.label }}</span>
