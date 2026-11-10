@@ -16,9 +16,9 @@ See also: `docs/architecture/app-shell-navigation.md` for app shell navigation a
 
 - `/timelines/messages`
 - `/explore`
-- `/status`
+- `/:instance/:account/:id` (status detail)
 - `/notifications`
-- `/profile`
+- `/profile/*`
 - `/more`
 - `/compose`
 
@@ -39,6 +39,8 @@ See also: `docs/architecture/app-shell-navigation.md` for app shell navigation a
 - Role: current user profile page after login.
 - Owns: profile header rendering, wiring profile timeline load/retry/refresh/load-more interactions.
 - Does not own: Mastodon response transformation, token/session validation logic, upstream API details.
+- `/profile` redirects to `/profile/posts`.
+- Child routes `/profile/posts`, `/profile/replies`, and `/profile/media` select the profile timeline view.
 
 ## Responsibilities Split
 

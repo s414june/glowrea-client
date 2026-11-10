@@ -11,7 +11,7 @@ const navItems: NavItem[] = [
   { key: 'home', label: '首頁', to: '/timelines', icon: 'home' },
   { key: 'notifications', label: '通知', to: '/notifications', icon: 'notifications' },
   { key: 'explore', label: '探索', to: '/explore', icon: 'search' },
-  { key: 'profile', label: '個人檔案', to: '/profile', icon: 'profile' },
+  { key: 'profile', label: '個人檔案', to: '/profile/posts', icon: 'profile' },
   { key: 'more', label: '更多', to: '/more', icon: 'more' },
   { key: 'compose', label: '發文', to: '/compose', icon: 'compose' },
 ]

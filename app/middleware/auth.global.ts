@@ -6,7 +6,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const protectedPrefixes = [
     '/timelines/messages',
-    '/status',
     '/notifications',
     '/profile',
     '/more',

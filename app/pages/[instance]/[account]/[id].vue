@@ -5,6 +5,13 @@ import ContextList from '~/components/status/ContextList.vue'
 import { useStatusDetail } from '~/composables/useStatusDetail'
 import LoadingSkeleton from '~/components/timeline/LoadingSkeleton.vue'
 
+definePageMeta({
+  middleware: () => {
+    const auth = useAuth()
+    if (!auth.isAuthenticated.value) return navigateTo('/login')
+  },
+})
+
 const route = useRoute()
 const {
   status,

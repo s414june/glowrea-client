@@ -38,9 +38,9 @@ function makeTabState(isLoading: Ref<boolean>): TabState {
   return { items, nextMaxId, isLoadingMore, loadMoreError, hasMore, isEmpty }
 }
 
-export function useProfilePage() {
+export function useProfilePage(initialTab: ProfileTab = 'posts') {
   const profile = ref<ProfileSummary | null>(null)
-  const activeTab = ref<ProfileTab>('posts')
+  const activeTab = ref<ProfileTab>(initialTab)
 
   const isInitialLoading = ref(false)
   const isRefreshing = ref(false)
@@ -99,7 +99,7 @@ export function useProfilePage() {
     try {
       const [meResponse] = await Promise.all([
         fetchProfileMe(),
-        fetchTab('posts'),
+        fetchTab(activeTab.value),
       ])
       profile.value = meResponse.profile
     } catch (error: unknown) {
@@ -143,15 +143,9 @@ export function useProfilePage() {
     try {
       const [meResponse] = await Promise.all([
         fetchProfileMe(),
-        fetchTab('posts'),
+        fetchTab(activeTab.value),
       ])
       profile.value = meResponse.profile
-      // Clear other tabs so they reload on next visit
-      repliesTab.items.value = []
-      repliesTab.nextMaxId.value = null
-      mediaTab.items.value = []
-      mediaTab.nextMaxId.value = null
-      if (activeTab.value !== 'posts') activeTab.value = 'posts'
     } catch (error: unknown) {
       initialError.value = normalizeError(error)
     } finally {

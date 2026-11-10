@@ -9,6 +9,11 @@ const route = useRoute()
 const { signal } = useProfileRefreshSignal()
 const lastAppliedSignal = ref(0)
 const headerVisible = useState<boolean>('header-visible', () => true)
+const routeTab = computed<ProfileTab>(() => {
+  if (route.path === '/profile/replies') return 'replies'
+  if (route.path === '/profile/media') return 'media'
+  return 'posts'
+})
 
 const {
   profile,
@@ -26,7 +31,7 @@ const {
   loadMore,
   refresh,
   retryInitial,
-} = useProfilePage()
+} = useProfilePage(routeTab.value)
 
 const profileTitle = computed(() => {
   if (!profile.value) return '個人頁面'
@@ -35,16 +40,17 @@ const profileTitle = computed(() => {
 })
 useSeoMeta({ title: profileTitle })
 
-const tabs: { id: ProfileTab; label: string }[] = [
-  { id: 'posts', label: '貼文' },
-  { id: 'replies', label: '回覆' },
-  { id: 'media', label: '媒體' },
+const tabs: { id: ProfileTab; label: string; path: string }[] = [
+  { id: 'posts', label: '貼文', path: '/profile/posts' },
+  { id: 'replies', label: '回覆', path: '/profile/replies' },
+  { id: 'media', label: '媒體', path: '/profile/media' },
 ]
 
-async function switchTab(tab: ProfileTab): Promise<void> {
+watch(routeTab, async (tab, previousTab) => {
+  if (tab === previousTab) return
   activeTab.value = tab
   await loadTabIfEmpty(tab)
-}
+})
 
 const sentinelRef = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
@@ -87,7 +93,7 @@ onBeforeUnmount(() => {
 
 watch(signal, async (value, previousValue) => {
   if (!value || value === previousValue) return
-  if (route.path !== '/profile') return
+  if (route.path !== '/profile' && !route.path.startsWith('/profile/')) return
   lastAppliedSignal.value = value
   if (items.value.length === 0) {
     await loadInitial()
@@ -153,17 +159,17 @@ function replyToHandle(status: TimelineStatus): string | null {
       >
         <div class="mx-auto w-full max-w-2xl overflow-x-auto scrollbar-none px-4">
           <nav class="flex min-w-max" role="tablist" aria-label="個人檔案頁籤">
-            <button
+            <NuxtLink
               v-for="tab in tabs"
               :key="tab.id"
+              :to="tab.path"
               class="home-tab"
               :class="activeTab === tab.id ? 'home-tab--active' : ''"
               role="tab"
               :aria-selected="activeTab === tab.id"
-              @click="switchTab(tab.id)"
             >
               {{ tab.label }}
-            </button>
+            </NuxtLink>
           </nav>
         </div>
       </div>
@@ -247,5 +253,6 @@ function replyToHandle(status: TimelineStatus): string | null {
         </template>
       </div>
     </template>
+    <NuxtPage />
   </main>
 </template>

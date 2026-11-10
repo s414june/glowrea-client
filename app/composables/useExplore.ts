@@ -1,13 +1,11 @@
+import type { InjectionKey } from 'vue'
 import type { SearchResponse, HashtagItem, AccountSummary, TrendingLink } from '#shared/types/search'
 import type { TimelineStatus } from '#shared/types/timeline'
 import { fetchSearch } from '~/utils/api/search'
 import { fetchTrendingTags, fetchTrendingStatuses, fetchTrendingAccounts, fetchTrendingLinks } from '~/utils/api/trends'
 
-type ExploreTab = 'statuses' | 'accounts' | 'hashtags' | 'links'
-
 type ExploreState = {
   query: Ref<string>
-  activeTab: Ref<ExploreTab>
   searchResults: Ref<SearchResponse | null>
   isSearching: Ref<boolean>
   searchError: Ref<string | null>
@@ -21,6 +19,8 @@ type ExploreState = {
   loadTrending: () => Promise<void>
 }
 
+const exploreStateKey: InjectionKey<ExploreState> = Symbol('explore-state')
+
 function normalizeError(error: unknown): string {
   if (typeof error === 'object' && error && 'statusMessage' in error) {
     return String((error as { statusMessage?: string }).statusMessage || 'Request failed.')
@@ -29,9 +29,8 @@ function normalizeError(error: unknown): string {
   return 'Request failed.'
 }
 
-export function useExplore(): ExploreState {
+export function provideExplore(): ExploreState {
   const query = ref('')
-  const activeTab = ref<ExploreTab>('statuses')
   const searchResults = ref<SearchResponse | null>(null)
   const isSearching = ref(false)
   const searchError = ref<string | null>(null)
@@ -42,7 +41,6 @@ export function useExplore(): ExploreState {
   const isTrendsLoading = ref(false)
 
   const hasQuery = computed(() => query.value.trim().length > 0)
-
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   async function performSearch(q: string): Promise<void> {
@@ -80,11 +78,6 @@ export function useExplore(): ExploreState {
       return
     }
 
-    // 搜尋狀態下 links tab 不存在，切回 statuses
-    if (activeTab.value === 'links') {
-      activeTab.value = 'statuses'
-    }
-
     debounceTimer = setTimeout(() => {
       void performSearch(newVal.trim())
     }, 300)
@@ -105,13 +98,8 @@ export function useExplore(): ExploreState {
     isTrendsLoading.value = false
   }
 
-  onUnmounted(() => {
-    if (debounceTimer) clearTimeout(debounceTimer)
-  })
-
-  return {
+  const state: ExploreState = {
     query,
-    activeTab,
     searchResults,
     isSearching,
     searchError,
@@ -124,4 +112,19 @@ export function useExplore(): ExploreState {
     search,
     loadTrending,
   }
+
+  provide(exploreStateKey, state)
+  onUnmounted(() => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+  })
+
+  return state
+}
+
+export function useExplore(): ExploreState {
+  const state = inject(exploreStateKey)
+  if (!state) {
+    throw new Error('Explore state must be provided by the /explore route layout.')
+  }
+  return state
 }
